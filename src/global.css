@@ -1,0 +1,72 @@
+
+/* responsive font size for 13 to 16 px */
+/* 1rem=16px */
+/* <style> */
+/* </style> */
+
+.apply-maxWidth{
+   max-width:1536px;
+   margin-left:auto;
+   margin-right:auto;
+   padding:1rem;
+}
+*{
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+.responsive_fontsize12{
+   font-size: clamp(0.5rem, 0.447rem + 0.2424vw, 0.75rem) !important
+}
+.responsive_fontsize14{
+   font-size: clamp(0.5625rem, 0.4962rem + 0.303vw, 0.875rem)   !important                                     
+ }
+ 
+ .responsive_fontsize16{
+   font-size: clamp(0.725rem, 0.5455rem + 0.3636vw, 1.115rem) !important                                
+ }
+ .responsive_fontsize18{
+   font-size: clamp(0.75rem, 0.6705rem + 0.3636vw, 1.125rem)    !important                                     
+  }
+  
+ /* clamp(minimum,current,maximum) */
+ .responsive_fontsize20{
+   font-size: clamp(0.8125rem, 0.7197rem + 0.4242vw, 1.25rem)
+    !important                                 
+ }
+ .responsive_fontsize24{
+   font-size: clamp(1rem, 0.8939rem + 0.4848vw, 1.5rem) !important;                                     
+ }
+ .responsive_fontsize25{
+   font-size: clamp(1rem, 0.8807rem + 0.5455vw, 1.5625rem)  !important
+ }
+ .responsive_fontsize26{
+   font-size: clamp(1.0625rem, 0.9432rem + 0.5455vw, 1.625rem) !important;                                     
+ }
+ .responsive_fontsize28{
+   font-size: clamp(1.125rem, 0.9924rem + 0.6061vw, 1.75rem) !important;                                     
+}
+ .responsive_fontsize32{
+   font-size: clamp(1.3125rem, 1.1667rem + 0.6667vw, 2rem)!important;                                     
+ }
+ .responsive_fontsize40{
+  font-size: clamp(0.875rem, 0.6105rem + 1.2093vw, 2.5rem) !important
+ }
+ .responsive_fontsize48{
+  font-size: clamp(1rem, 0.6744rem + 1.4884vw, 3rem) !important
+ }
+ .responsive_fontsize58{
+  font-size: clamp(1.125rem, 0.718rem + 1.8605vw, 3.625rem)!important;                                     
+}
+ .responsive_fontsize64{
+  font-size: clamp(1.25rem, 0.8023rem + 2.0465vw, 4rem)!important;                                     
+}
+
+ /* Center Carousel React Slick */
+ .center__carousel .slick-slide > div {
+    display: grid;
+    place-items: center;
+    margin:0 auto;
+    padding: 0px;
+   
+  }

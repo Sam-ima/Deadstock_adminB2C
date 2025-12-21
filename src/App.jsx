@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { lazy, Suspense } from "react";
+import "./global.css";
+
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Route,
+} from "react-router-dom";
+
+import { ToastContainer, Flip } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+/* Lazy Loaded Components */
+import LoginForm from "./dashboardLayout/login_form";
+import AdminDashboardPage from "./components/dashboard/admin_dashboard.page"
+// const OwnerTable = lazy(() => import("./pages/owner/owner/OwnerTable"));
+// const CustomerTable = lazy(() => import("./pages/customer/CustomerTable"));
+// const BookingTable = lazy(() => import("./pages/booking/BookingTable"));
+// const PickUpTable = lazy(() => import("./pages/pickUp/PickUpTable"));
+// const HireDriverTable = lazy(() => import("./pages/hireDriver/hireDriverTable"));
+// const ReviewsTable = lazy(() => import("./pages/review/ReviewTable"));
+// const RedeemSchemeTable = lazy(() => import("./pages/redeemScheme/RedeemSchemeTable"));
 
 function App() {
-  const [count, setCount] = useState(0)
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route>
+        <Route path="/" element={<LoginForm />} />
+        <Route path="/dashboard" element={<AdminDashboardPage />} />
+        {/* <Route path="/owner" element={<OwnerTable />} />
+        <Route path="/customer" element={<CustomerTable />} />
+        <Route path="/booking" element={<BookingTable />} />
+        <Route path="/pickup" element={<PickUpTable />} />
+        <Route path="/hireDriver" element={<HireDriverTable />} />
+        <Route path="/redeemScheme" element={<RedeemSchemeTable />} />
+        <Route path="/reviews" element={<ReviewsTable />} /> */}
+      </Route>
+    )
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Suspense fallback={<div className="loading">Loading...</div>}>
+      <RouterProvider router={router} />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition={Flip}
+      />
+    </Suspense>
+  );
 }
 
-export default App
+export default App;
