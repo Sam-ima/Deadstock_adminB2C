@@ -4,41 +4,50 @@ import { Box } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import HomeIcon from "@mui/icons-material/Home";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import BookOnlineIcon from "@mui/icons-material/BookOnline";
-import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import Inventory2Icon from "@mui/icons-material/Inventory2";
+import CategoryIcon from "@mui/icons-material/Category";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import LogoutIcon from "@mui/icons-material/Logout";
-import ManIcon from "@mui/icons-material/Man";
-import ScheduleIcon from "@mui/icons-material/Schedule";
 
 import { AppProvider, DashboardLayout } from "@toolpad/core";
 import { useNavigate } from "react-router-dom";
 
+/* ===================== PAGE IMPORTS ===================== */
 import DashboardContent from "./dashboard_content";
-// import OwnerTable from "../pages/owner/owner/OwnerTable";
-// import CustomerTable from "../pages/customer/CustomerTable";
-// import BookingTable from "../pages/booking/BookingTable";
-// import PickUpTable from "../pages/pickUp/PickUpTable";
-// import HireDriverTable from "../pages/hireDriver/hireDriverTable";
-// import RedeemSchemeTable from "../pages/redeemScheme/RedeemSchemeTable";
-// import ReviewTable from "../pages/review/ReviewTable";
+import ProductsPage from "./products_page";
+import CategoriesPage from "./categories_page";
+import LowStockPage from "./low_stock_page";
+import HiddenProductsPage from "./hidden_product_page";
 
-// import LogoImage from "../assets/getgo.jpg";
-
-/* ===================== NAVIGATION ===================== */
+/* ===================== NAVIGATION (B2C ADMIN) ===================== */
 const NAVIGATION = [
-  { segment: "dashboard", title: "Dashboard", icon: <DashboardIcon /> },
-  { segment: "owner", title: "Owner", icon: <HomeIcon /> },
-  { segment: "customer", title: "Customer", icon: <AccountCircleIcon /> },
-  { segment: "booking", title: "Rental Request", icon: <BookOnlineIcon /> },
-  { segment: "pickUp", title: "PickUp", icon: <DirectionsCarIcon /> },
-  { segment: "hireDriver", title: "Hire Driver", icon: <ManIcon /> },
-  { segment: "redeemScheme", title: "Redeem Scheme", icon: <ScheduleIcon /> },
-  { segment: "review", title: "Review", icon: <VisibilityIcon /> },
+  {
+    segment: "dashboard",
+    title: "Dashboard",
+    icon: <DashboardIcon />,
+  },
+  {
+    segment: "products",
+    title: "Products",
+    icon: <Inventory2Icon />,
+  },
+  {
+    segment: "categories",
+    title: "Categories",
+    icon: <CategoryIcon />,
+  },
+  {
+    segment: "low-stock",
+    title: "Low Stock",
+    icon: <WarningAmberIcon />,
+  },
+  {
+    segment: "hidden-products",
+    title: "Hidden Products",
+    icon: <VisibilityOffIcon />,
+  },
 
-  // Divider pushes Logout visually to bottom
   { kind: "divider" },
 
   {
@@ -71,13 +80,10 @@ const demoTheme = createTheme({
 /* ===================== ROUTE → COMPONENT MAP ===================== */
 const componentMap = {
   "/dashboard": <DashboardContent />,
-  // "/owner": <OwnerTable />,
-  // "/customer": <CustomerTable />,
-  // "/booking": <BookingTable />,
-  // "/pickUp": <PickUpTable />,
-  // "/hireDriver": <HireDriverTable />,
-  // "/redeemScheme": <RedeemSchemeTable />,
-  // "/review": <ReviewTable />,
+  "/products": <ProductsPage />,
+  "/categories": <CategoriesPage />,
+  "/low-stock": <LowStockPage />,
+  "/hidden-products": <HiddenProductsPage />,
 };
 
 const DashboardComponent = (path) =>
@@ -85,11 +91,10 @@ const DashboardComponent = (path) =>
 
 /* ===================== BRANDING ===================== */
 export const BRANDING = {
-  title: "Deadstock",
+  title: "Deadstock Admin",
   logo: (
     <img
-      // src={LogoImage}
-      alt="App Logo"
+      alt="Deadstock Logo"
       style={{ height: 40, borderRadius: "50%" }}
     />
   ),
@@ -116,7 +121,7 @@ DemoPageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
-/* ===================== MAIN COMPONENT ===================== */
+/* ===================== MAIN DASHBOARD ===================== */
 function DashboardTabs({ window }) {
   const navigate = useNavigate();
   const [pathname, setPathname] = React.useState("/dashboard");
