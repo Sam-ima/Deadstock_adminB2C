@@ -73,7 +73,7 @@ const DashboardContent = () => {
           position: "sticky",
           top: 0,
           zIndex: 10,
-          backgroundColor: theme.palette.background.default,
+          // backgroundColor: theme.palette.background.default,
           mb: 3,
           py: 1,
         }}
