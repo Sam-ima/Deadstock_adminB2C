@@ -23,7 +23,7 @@ import DashboardContent from "./dashboard_content";
 import SellersPage from "../pages/sellers/seller.page";
 import CustomersPage from "../pages/customers/customer.page";
 import ProductsPage from "../pages/products/products_page";
-import CategoriesPage from "../pages/categories_page";
+// import CategoriesPage from "../pages/categories_page";
 import LowStockPage from "../pages/low_stock_page";
 import HiddenProductsPage from "../pages/hidden_product_page";
 import ReviewPage from "../pages/reviews/review.page";
@@ -53,11 +53,11 @@ const NAVIGATION = [
     title: "Products",
     icon: <ProductionQuantityLimitsIcon />,
   },
-  {
-    segment: "categories",
-    title: "Categories",
-    icon: <CategoryIcon />,
-  },
+//   {
+//     segment: "categories",
+//     title: "Categories",
+//     icon: <CategoryIcon />,
+//   },
 
   {
     segment: "low-stock",
@@ -111,7 +111,7 @@ const componentMap = {
   "/sellers": <SellersPage />,
   "/customers": <CustomersPage />,
   "/products": <ProductsPage />,
-  "/categories": <CategoriesPage />,
+//   "/categories": <CategoriesPage />,
   "/low-stock": <LowStockPage />,
   "/hidden-products": <HiddenProductsPage />,
   "/review": <ReviewPage/>
