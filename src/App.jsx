@@ -19,8 +19,7 @@ import AdminDashboardPage from "./pages/admin_dashboard.page"
 // const BookingTable = lazy(() => import("./pages/booking/BookingTable"));
 // const PickUpTable = lazy(() => import("./pages/pickUp/PickUpTable"));
 // const HireDriverTable = lazy(() => import("./pages/hireDriver/hireDriverTable"));
-// const ReviewsTable = lazy(() => import("./pages/review/ReviewTable"));
-// const RedeemSchemeTable = lazy(() => import("./pages/redeemScheme/RedeemSchemeTable"));
+
 
 function App() {
   const router = createBrowserRouter(
