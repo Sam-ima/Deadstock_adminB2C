@@ -7,7 +7,8 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
-
+import { SearchProvider } from "./components/searchbar/searchContext";
+import { SnackbarProvider } from "./components/context/snackbarContext";
 import { ToastContainer, Flip } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -40,6 +41,8 @@ function App() {
 
   return (
     <Suspense fallback={<div className="loading">Loading...</div>}>
+      <SearchProvider>
+        <SnackbarProvider>
       <RouterProvider router={router} />
 
       <ToastContainer
@@ -55,6 +58,8 @@ function App() {
         theme="light"
         transition={Flip}
       />
+      </SnackbarProvider>
+      </SearchProvider>
     </Suspense>
   );
 }
