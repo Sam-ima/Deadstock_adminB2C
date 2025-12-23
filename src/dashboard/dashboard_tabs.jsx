@@ -4,6 +4,8 @@ import { Box } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import CategoryIcon from "@mui/icons-material/Category";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -15,10 +17,14 @@ import { useNavigate } from "react-router-dom";
 
 /* ===================== PAGE IMPORTS ===================== */
 import DashboardContent from "./dashboard_content";
-import ProductsPage from "./products_page";
-import CategoriesPage from "./categories_page";
-import LowStockPage from "./low_stock_page";
-import HiddenProductsPage from "./hidden_product_page";
+import SellersPage from "../pages/sellers/seller.page";
+import CustomersPage from "../pages/customers/customer.page";
+import ProductsPage from "../pages/products/products_page";
+import CategoriesPage from "../pages/categories_page";
+import LowStockPage from "../pages/low_stock_page";
+import HiddenProductsPage from "../pages/hidden_product_page";
+import ReviewPage from "../pages/reviews/review.page";
+
 
 /* ===================== NAVIGATION (B2C ADMIN) ===================== */
 const NAVIGATION = [
@@ -27,6 +33,18 @@ const NAVIGATION = [
     title: "Dashboard",
     icon: <DashboardIcon />,
   },
+
+  {
+    segment: "sellers",
+    title: "Sellers",
+    icon: <Inventory2Icon />,
+  },
+  {
+    segment: "customers",
+    title: "Customers",
+    icon: <AccountCircleIcon />,
+  },
+
   {
     segment: "products",
     title: "Products",
@@ -37,6 +55,7 @@ const NAVIGATION = [
     title: "Categories",
     icon: <CategoryIcon />,
   },
+
   {
     segment: "low-stock",
     title: "Low Stock",
@@ -45,6 +64,11 @@ const NAVIGATION = [
   {
     segment: "hidden-products",
     title: "Hidden Products",
+    icon: <VisibilityOffIcon />,
+  },
+  {
+    segment: "reviews",
+    title: "Reviews",
     icon: <VisibilityOffIcon />,
   },
 
@@ -56,6 +80,7 @@ const NAVIGATION = [
     icon: <LogoutIcon />,
   },
 ];
+
 
 /* ===================== THEME ===================== */
 const demoTheme = createTheme({
@@ -80,10 +105,13 @@ const demoTheme = createTheme({
 /* ===================== ROUTE → COMPONENT MAP ===================== */
 const componentMap = {
   "/dashboard": <DashboardContent />,
+  "/sellers": <SellersPage />,
+  "/customers": <CustomersPage />,
   "/products": <ProductsPage />,
   "/categories": <CategoriesPage />,
   "/low-stock": <LowStockPage />,
   "/hidden-products": <HiddenProductsPage />,
+  "/review": <ReviewPage/>
 };
 
 const DashboardComponent = (path) =>

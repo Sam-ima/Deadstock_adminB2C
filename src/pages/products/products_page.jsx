@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { products as initialProducts } from "../adminStore/products";
-import { categories } from "../adminStore/catogories";
-import { calculateDepreciatedPrice } from "../adminLogic/depreciation";
+import { products as initialProducts } from "../../adminStore/products";
+import { categories } from "../../adminStore/catogories";
+import { calculateDepreciatedPrice } from "../../adminLogic/depreciation";
 import {
   Table,
   TableBody,

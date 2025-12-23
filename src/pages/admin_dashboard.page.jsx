@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Container } from "@mui/material";
-import DashboardTabs from "../../dashboardLayout/dashboard_tabs";
+import DashboardTabs from "../dashboard/dashboard_tabs";
 import { useNavigate } from "react-router-dom";
 
 const AdminDashboardPage = () => {
