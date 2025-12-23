@@ -8,6 +8,9 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 import Inventory2Icon from "@mui/icons-material/Inventory2";
 import CategoryIcon from "@mui/icons-material/Category";
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import VisibilityIcon from "@mui/icons-material/Visibility";
+
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -48,7 +51,7 @@ const NAVIGATION = [
   {
     segment: "products",
     title: "Products",
-    icon: <Inventory2Icon />,
+    icon: <ProductionQuantityLimitsIcon />,
   },
   {
     segment: "categories",
@@ -69,7 +72,7 @@ const NAVIGATION = [
   {
     segment: "reviews",
     title: "Reviews",
-    icon: <VisibilityOffIcon />,
+    icon: <VisibilityIcon />,
   },
 
   { kind: "divider" },
