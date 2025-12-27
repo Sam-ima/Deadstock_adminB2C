@@ -4,6 +4,7 @@ import DashboardTabs from "../dashboard/dashboard_tabs";
 import { useNavigate } from "react-router-dom";
 import auth from "../dashboard/login/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
 
@@ -14,7 +15,7 @@ const AdminDashboardPage = () => {
         // No user logged in
         navigate("/");
       }
-      setLoading(false);
+      
     });
 
     return () => unsubscribe(); // Cleanup on unmount
