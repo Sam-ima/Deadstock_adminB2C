@@ -14,13 +14,12 @@ import "react-toastify/dist/ReactToastify.css";
 
 /* Lazy Loaded Components */
 import LoginForm from "./dashboard/login/login_form";
-import AdminDashboardPage from "./pages/admin_dashboard.page"
+import AdminDashboardPage from "./pages/admin_dashboard.page";
 // const OwnerTable = lazy(() => import("./pages/owner/owner/OwnerTable"));
 // const CustomerTable = lazy(() => import("./pages/customer/CustomerTable"));
 // const BookingTable = lazy(() => import("./pages/booking/BookingTable"));
 // const PickUpTable = lazy(() => import("./pages/pickUp/PickUpTable"));
 // const HireDriverTable = lazy(() => import("./pages/hireDriver/hireDriverTable"));
-
 
 function App() {
   const router = createBrowserRouter(
@@ -43,22 +42,22 @@ function App() {
     <Suspense fallback={<div className="loading">Loading...</div>}>
       <SearchProvider>
         <SnackbarProvider>
-      <RouterProvider router={router} />
+          <RouterProvider router={router} />
 
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition={Flip}
-      />
-      </SnackbarProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Flip}
+          />
+        </SnackbarProvider>
       </SearchProvider>
     </Suspense>
   );

@@ -1,40 +1,42 @@
-import  { useState ,useEffect} from 'react';
+import { useState} from 'react';
+import { signInWithEmailAndPassword } from "firebase/auth"; // Changed from createUserWithEmailAndPassword
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import LoginContainer from './login_container';
 import LoginPaper from './login_paper';
 import LoginHeader from './login_header';
 import LoginFormContent from './login_form_content';
-
+import { auth } from './firebase'; // Import auth properly
 
 const LoginForm = () => {
-   const [isMounted, setIsMounted] = useState(false);
-  const [username, setUsername] = useState('');
+  // const [isMounted, setIsMounted] = useState(false);
+  const [email, setEmail] = useState(''); // Changed from username to email
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ username: '', password: '' });
-  const [touched, setTouched] = useState({ username: false, password: false });
+  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 100);
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setIsMounted(true);
+  //   }, 100);
     
-    return () => clearTimeout(timer);
-  }, []);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const validateForm = () => {
-    const newErrors = { username: '', password: '' };
+    const newErrors = { email: '', password: '' };
     
-    if (!username.trim()) {
-      newErrors.username = 'Username is required';
-    } else if (username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
+    // Email validation
+    if (!email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = 'Email is invalid';
     }
     
+    // Password validation
     if (!password) {
       newErrors.password = 'Password is required';
     } else if (password.length < 6) {
@@ -42,7 +44,7 @@ const LoginForm = () => {
     }
     
     setErrors(newErrors);
-    return !newErrors.username && !newErrors.password;
+    return !newErrors.email && !newErrors.password;
   };
 
   const handleBlur = (field) => () => {
@@ -61,25 +63,55 @@ const LoginForm = () => {
     setLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Use signInWithEmailAndPassword for login (not createUser...)
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      // Firebase already stored tokens internally at this point!
       
-      if (username && password) {
-        localStorage.setItem('login_token', '@#$educationdotcom$#@');
-        localStorage.setItem('user', JSON.stringify({ username }));
-        
-        toast.success('Login successful! Redirecting...', {
-          position: "top-center",
-          autoClose: 2000,
-        });
-        
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000);
-      } else {
-        throw new Error('Invalid credentials');
-      }
+      // console.log("Logged in user:", user);
+      
+      // Store token and user info
+      // localStorage.setItem('login_token', '@#$educationdotcom$#@');
+      localStorage.setItem('user', JSON.stringify({ 
+        email: user.email,
+        uid: user.uid,
+        displayName: user.displayName || email.split('@')[0]
+      }));
+      
+      toast.success('Login successful! Redirecting...', {
+        position: "top-center",
+        autoClose: 2000,
+      });
+      
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 2000);
+      
     } catch (error) {
-      toast.error(error.message || 'Login failed. Please try again.');
+      // Handle Firebase authentication errors
+      let errorMessage = 'Login failed. Please try again.';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No user found with this email.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled.';
+          break;
+        default:
+          errorMessage = error.message || 'Login failed. Please try again.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -105,29 +137,27 @@ const LoginForm = () => {
         <LoginHeader />
         
         <LoginFormContent
-          username={username}
+          email={email} // Changed from username to email
           password={password}
           showPassword={showPassword}
           loading={loading}
           errors={errors}
           touched={touched}
-          onUsernameChange={(e) => {
-            setUsername(e.target.value);
-            if (touched.username) validateForm();
+          onEmailChange={(e) => { // Updated prop name
+            setEmail(e.target.value);
+            if (touched.email) validateForm();
           }}
           onPasswordChange={(e) => {
             setPassword(e.target.value);
             if (touched.password) validateForm();
           }}
-          onUsernameBlur={handleBlur('username')}
+          onEmailBlur={handleBlur('email')} // Updated prop name
           onPasswordBlur={handleBlur('password')}
           onKeyPress={handleKeyPress}
           onShowPasswordClick={handleClickShowPassword}
           onMouseDownPassword={handleMouseDownPassword}
           onSubmit={handleLogin}
         />
-        
-      
       </LoginPaper>
     </LoginContainer>
   );
