@@ -2,15 +2,22 @@ import React, { useEffect } from "react";
 import { Container } from "@mui/material";
 import DashboardTabs from "../dashboard/dashboard_tabs";
 import { useNavigate } from "react-router-dom";
-
+import auth from "../dashboard/login/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("login_token");
-    if (!token) {
-      navigate("/");
-    }
+   useEffect(() => {
+    // Firebase auth state listener
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // No user logged in
+        navigate("/");
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
   }, [navigate]);
 
   return (

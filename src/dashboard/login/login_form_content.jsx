@@ -2,7 +2,7 @@ import React from "react";
 import { Box, Link } from "@mui/material";
 
 import { styled } from "@mui/material/styles";
-import UsernameField from "./username_field";
+import EmailField from "./username_field";
 import PasswordField from "./password_field";
 import LoginButton from "./login_button";
 
@@ -20,15 +20,15 @@ const ForgotPasswordLink = styled(Link)(({ theme }) => ({
 }));
 
 const LoginFormContent = ({
-  username,
+  email,
   password,
   showPassword,
   loading,
   errors,
   touched,
-  onUsernameChange,
+  onEmailChange,
   onPasswordChange,
-  onUsernameBlur,
+  onemailBlur,
   onPasswordBlur,
   onKeyPress,
   onShowPasswordClick,
@@ -37,12 +37,12 @@ const LoginFormContent = ({
 }) => {
   return (
     <StyledBox component="form" onSubmit={onSubmit}>
-      <UsernameField
-        username={username}
-        error={touched.username && !!errors.username}
-        helperText={touched.username && errors.username}
-        onChange={onUsernameChange}
-        onBlur={onUsernameBlur}
+      <EmailField
+        email={email}
+        error={touched.email && !!errors.email}
+        helperText={touched.email && errors.email}
+        onChange={onEmailChange}
+        onBlur={onemailBlur}
         disabled={loading}
       />
 

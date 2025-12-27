@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import { AppProvider, DashboardLayout } from "@toolpad/core";
 import { useNavigate } from "react-router-dom";
+import { signOut } from "firebase/auth"; // Import signOut
+import { auth } from "./login/firebase"
 
 import { NAVIGATION } from "./dashboard_navigation";
 import { dashboardTheme } from "./dashboard_theme";
@@ -38,20 +40,31 @@ export default function DashboardTabs({ window }) {
   const navigate = useNavigate();
   const [pathname, setPathname] = React.useState("/dashboard");
 
+  // Handle logout with Firebase
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Firebase logout
+      localStorage.removeItem("user"); // Remove user data
+      localStorage.removeItem("login_token"); // Remove old token if exists
+      navigate("/"); // Redirect to login
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   const router = React.useMemo(
     () => ({
       pathname,
       searchParams: new URLSearchParams(),
       navigate: (path) => {
         if (path === "/logout") {
-          localStorage.removeItem("login_token");
-          navigate("/");
+          handleLogout(); // Call Firebase logout
           return;
         }
         setPathname(String(path));
       },
     }),
-    [pathname, navigate]
+    [pathname, navigate] // Add dependencies
   );
 
   return (
