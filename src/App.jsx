@@ -13,7 +13,7 @@ import { ToastContainer, Flip } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 /* Lazy Loaded Components */
-import LoginForm from "./dashboard/login_form";
+import LoginForm from "./dashboard/login/login_form";
 import AdminDashboardPage from "./pages/admin_dashboard.page"
 // const OwnerTable = lazy(() => import("./pages/owner/owner/OwnerTable"));
 // const CustomerTable = lazy(() => import("./pages/customer/CustomerTable"));
