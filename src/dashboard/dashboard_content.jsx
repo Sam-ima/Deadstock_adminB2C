@@ -39,12 +39,12 @@ const DashboardContent = () => {
       icon: <ActiveIcon />,
       color: theme.palette.success.main,
     },
-    {
-      title: "Hidden Products",
-      // value: dashboardData.hiddenProducts,
-      icon: <HiddenIcon />,
-      color: theme.palette.error.main,
-    },
+    // {
+    //   title: "Hidden Products",
+    //   // value: dashboardData.hiddenProducts,
+    //   icon: <HiddenIcon />,
+    //   color: theme.palette.error.main,
+    // },
     {
       title: "Categories",
       // value: dashboardData.categories,

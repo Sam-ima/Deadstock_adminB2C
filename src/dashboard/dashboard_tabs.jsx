@@ -4,7 +4,7 @@ import { Box } from "@mui/material";
 import { AppProvider, DashboardLayout } from "@toolpad/core";
 import { useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth"; // Import signOut
-import { auth } from "./login/firebase"
+import { auth } from "../components/config/firebase"
 
 import { NAVIGATION } from "./dashboard_navigation";
 import { dashboardTheme } from "./dashboard_theme";

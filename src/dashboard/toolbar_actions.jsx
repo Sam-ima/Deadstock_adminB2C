@@ -4,9 +4,7 @@ import {
   IconButton,
   Avatar,
   Menu,
-  MenuItem,
   Typography,
-  Divider,
   Box,
   CircularProgress,
 } from "@mui/material";
@@ -15,7 +13,7 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchBar from "../components/searchbar/searchbar";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { auth } from "./login/firebase";
+import { auth } from "../components/config/firebase";
 // import LogoutIcon from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";

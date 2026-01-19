@@ -6,7 +6,7 @@ import LoginContainer from './login_container';
 import LoginPaper from './login_paper';
 import LoginHeader from './login_header';
 import LoginFormContent from './login_form_content';
-import { auth } from './firebase'; // Import auth properly
+import { auth } from '../../components/config/firebase'; // Import auth properly
 
 const LoginForm = () => {
   // const [isMounted, setIsMounted] = useState(false);

@@ -10,8 +10,9 @@ import {
   Box,
   TextField,
 } from "@mui/material";
+import SellerTable from "../../components/seller/sellerTable";
 
-const SellerTable = () => {
+const SellerPage = () => {
   return (
     <>
       <Typography
@@ -28,9 +29,10 @@ const SellerTable = () => {
       >
         Seller Details
       </Typography>
+      <SellerTable/>
 
     </>
   );
 };
 
-export default SellerTable;
+export default SellerPage;
