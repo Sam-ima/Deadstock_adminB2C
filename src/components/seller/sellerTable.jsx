@@ -15,7 +15,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditSellerDialog from "./editSellerDialog";
 import { toast } from "react-toastify";
-
 import {
   collection,
   getDocs,
@@ -25,11 +24,17 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import SellerProductsDialog from "./sellerProducts";
+
 
 const SellerTable = () => {
   const [sellers, setSellers] = useState([]);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState(null);
+  const [openProducts, setOpenProducts] = useState(false);
+  const [selectedSellerForProducts, setSelectedSellerForProducts] =
+    useState(null);
 
   /* 🔹 Fetch sellers only */
   const fetchSellers = async () => {
@@ -66,6 +71,11 @@ const SellerTable = () => {
   useEffect(() => {
     fetchSellers();
   }, []);
+
+  const handleViewProducts = (seller) => {
+    setSelectedSellerForProducts(seller);
+    setOpenProducts(true);
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -112,9 +122,17 @@ const SellerTable = () => {
                     {seller.shopName}
                   </TableCell>
 
-                  <TableCell align="center">
+                  <TableCell align="center" sx={{display:"flex"}}>
+                    <Typography
+                      color="info"
+                      onClick={() => handleViewProducts(seller)}
+                      sx={{fontSize:"1rem",cursor:"pointer"}}
+                    >
+                      view products
+                    </Typography>
+
                     <IconButton
-                      color="primary"
+                    //   color="primary"
                       onClick={() => handleEdit(seller)}
                     >
                       <EditIcon />
@@ -145,8 +163,12 @@ const SellerTable = () => {
         seller={selectedSeller}
         refreshData={fetchSellers}
       />
+      <SellerProductsDialog
+        open={openProducts}
+        handleClose={() => setOpenProducts(false)}
+        seller={selectedSellerForProducts}
+      />
     </Box>
-    
   );
 };
 
