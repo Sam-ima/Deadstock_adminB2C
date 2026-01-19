@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Container } from "@mui/material";
 import DashboardTabs from "../dashboard/dashboard_tabs";
 import { useNavigate } from "react-router-dom";
-import auth from "../dashboard/login/firebase";
+import auth from "../components/config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 const AdminDashboardPage = () => {

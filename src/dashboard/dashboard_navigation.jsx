@@ -13,7 +13,7 @@ export const NAVIGATION = [
   { segment: "customers", title: "Customers", icon: <AccountCircleIcon /> },
   { segment: "products", title: "Products", icon: <ProductionQuantityLimitsIcon /> },
   { segment: "low-stock", title: "Low Stock", icon: <WarningAmberIcon /> },
-  { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
+  // { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
   { segment: "reviews", title: "Reviews", icon: <VisibilityIcon /> },
   { kind: "divider" },
   { segment: "logout", title: "Logout", icon: <LogoutIcon /> },

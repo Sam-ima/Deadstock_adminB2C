@@ -3,7 +3,7 @@ import SellersPage from "../pages/sellers/seller.page";
 import CustomersPage from "../pages/customers/customer.page";
 import ProductsPage from "../pages/products/products_page";
 import LowStockPage from "../pages/low_stock_page";
-import HiddenProductsPage from "../pages/hidden_product_page";
+// import HiddenProductsPage from "../pages/hidden_product_page";
 import ReviewPage from "../pages/reviews/review.page";
 
 export const componentMap = {
@@ -12,7 +12,7 @@ export const componentMap = {
   "/customers": <CustomersPage />,
   "/products": <ProductsPage />,
   "/low-stock": <LowStockPage />,
-  "/hidden-products": <HiddenProductsPage />,
+  // "/hidden-products": <HiddenProductsPage />,
   "/review": <ReviewPage />,
 };
 
