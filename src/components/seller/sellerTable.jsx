@@ -27,7 +27,6 @@ import { db } from "../config/firebase";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import SellerProductsDialog from "./sellerProducts";
 
-
 const SellerTable = () => {
   const [sellers, setSellers] = useState([]);
   const [openEdit, setOpenEdit] = useState(false);
@@ -91,6 +90,9 @@ const SellerTable = () => {
               <TableCell sx={{ fontWeight: "bold" }}>S.N</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>City</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Country</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>PAN</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
               <TableCell sx={{ fontWeight: "bold" }}>Shop Name</TableCell>
@@ -112,6 +114,9 @@ const SellerTable = () => {
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>{seller.fullName}</TableCell>
                   <TableCell>{seller.email}</TableCell>
+                  <TableCell>{seller.address}</TableCell>
+                  <TableCell>{seller.city}</TableCell>
+                  <TableCell>{seller.country}</TableCell>
                   <TableCell sx={{ textTransform: "capitalize" }}>
                     {seller.panVat}
                   </TableCell>
@@ -122,17 +127,17 @@ const SellerTable = () => {
                     {seller.shopName}
                   </TableCell>
 
-                  <TableCell align="center" sx={{display:"flex"}}>
+                  <TableCell align="center" sx={{ display: "flex" }}>
                     <Typography
                       color="info"
                       onClick={() => handleViewProducts(seller)}
-                      sx={{fontSize:"1rem",cursor:"pointer"}}
+                      sx={{ fontSize: "1rem", cursor: "pointer" }}
                     >
                       view products
                     </Typography>
 
                     <IconButton
-                    //   color="primary"
+                      //   color="primary"
                       onClick={() => handleEdit(seller)}
                     >
                       <EditIcon />
