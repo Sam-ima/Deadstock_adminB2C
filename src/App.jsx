@@ -42,21 +42,21 @@ function App() {
     <Suspense fallback={<div className="loading">Loading...</div>}>
       <SearchProvider>
         {/* <SnackbarProvider> */}
-          <RouterProvider router={router} />
+        <RouterProvider router={router} />
 
-          <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-            transition={Flip}
-          />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Flip}
+        />
         {/* </SnackbarProvider> */}
       </SearchProvider>
     </Suspense>

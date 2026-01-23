@@ -10,7 +10,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 export const NAVIGATION = [
   { segment: "dashboard", title: "Dashboard", icon: <DashboardIcon /> },
   { segment: "sellers", title: "Sellers", icon: <Inventory2Icon /> },
-  { segment: "customers", title: "Customers", icon: <AccountCircleIcon /> },
+  { segment: "buyers", title: "Buyers", icon: <AccountCircleIcon /> },
   { segment: "products", title: "Products", icon: <ProductionQuantityLimitsIcon /> },
   { segment: "low-stock", title: "Low Stock", icon: <WarningAmberIcon /> },
   // { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
