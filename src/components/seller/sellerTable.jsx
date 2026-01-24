@@ -24,8 +24,7 @@ import {
   doc,
 } from "firebase/firestore";
 import { db } from "../config/firebase";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import SellerProductsDialog from "./sellerProducts";
+import SellerProductsDialog from "./sellerProductDetails/sellerProductsMainPage";
 
 const SellerTable = () => {
   const [sellers, setSellers] = useState([]);
@@ -78,10 +77,7 @@ const SellerTable = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-        Seller List
-      </Typography> */}
-
+    
       <TableContainer component={Paper} elevation={3}>
         <Table>
           {/* TABLE HEADER */}
