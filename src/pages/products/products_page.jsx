@@ -6,43 +6,59 @@ import {
   Grid,
   Paper,
   CircularProgress,
+  Snackbar,
   Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
 import { AddProductDialog, ViewProductDialog } from "./product_dialog";
-import { fetchAllData, addProduct, deleteProduct } from "./product_service";
-// import { addProduct } from "./product_service";
 
-import { applyProductFilters, getPaginatedProducts } from "./product_utils";
+import {
+  fetchAllData,
+  addProduct,
+  deleteProduct,
+  updateProduct,
+} from "./product_service";
+
+import {
+  applyProductFilters,
+  getPaginatedProducts,
+} from "./product_utils";
 
 export default function ProductsPage() {
+  /* ===================== STATE ===================== */
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+
   const [loading, setLoading] = useState(true);
+
   const [open, setOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
-  
-  // View dialog states
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  
-  // Tab and filter states
+
   const [tabValue, setTabValue] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Pagination
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  
+
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
   const [newProduct, setNewProduct] = useState({
     name: "",
+    slug: "",
     categoryId: "",
     subcategoryId: "",
     basePrice: "",
@@ -53,7 +69,16 @@ export default function ProductsPage() {
     saleType: "direct",
   });
 
-  //  Fetch all data
+  /* ===================== HELPERS ===================== */
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  /* ===================== FETCH DATA ===================== */
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -65,6 +90,7 @@ export default function ProductsPage() {
         setFilteredProducts(data.products);
       } catch (error) {
         console.error("Failed to load data:", error);
+        showSnackbar("Failed to load data", "error");
       } finally {
         setLoading(false);
       }
@@ -73,51 +99,27 @@ export default function ProductsPage() {
     loadData();
   }, []);
 
-  // Apply filters when dependencies change
+  /* ===================== FILTERS ===================== */
   useEffect(() => {
-    const filtered = applyProductFilters(products, searchQuery, selectedCategory, selectedSubcategory);
+    const filtered = applyProductFilters(
+      products,
+      searchQuery,
+      selectedCategory,
+      selectedSubcategory
+    );
     setFilteredProducts(filtered);
-    setPage(0); // Reset to first page when filters change
+    setPage(0);
   }, [products, searchQuery, selectedCategory, selectedSubcategory]);
 
-  // Handle tab change
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-    if (newValue === 0) {
-      setSelectedCategory("all");
-      setSelectedSubcategory("all");
-    }
-  };
-
-  // Handle category change
-  const handleCategoryChange = (event) => {
-    const categoryId = event.target.value;
-    setSelectedCategory(categoryId);
-    setSelectedSubcategory("all");
-    setTabValue(1);
-  };
-
-  // Handle subcategory change
-  const handleSubcategoryChange = (event) => {
-    setSelectedSubcategory(event.target.value);
-  };
-
-  // Handle pagination
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  // Dialog handlers
+  /* ===================== HANDLERS ===================== */
   const handleOpen = () => setOpen(true);
+
   const handleClose = () => {
     setOpen(false);
+    setEditingProduct(null);
     setNewProduct({
       name: "",
+      slug: "",
       categoryId: "",
       subcategoryId: "",
       basePrice: "",
@@ -129,59 +131,60 @@ export default function ProductsPage() {
     });
   };
 
-  const handleViewClick = (product) => {
+  const handleViewClick = product => {
     setSelectedProduct(product);
     setViewDialogOpen(true);
   };
-const handleEditClick = (product) => {
-  setEditingProduct(product);
-  setNewProduct(product);
-  setOpen(true);
-};
 
+  const handleEditClick = product => {
+    setEditingProduct(product);
+    setNewProduct(product);
+    setOpen(true);
+  };
 
-  const handleDeleteClick = async (productId) => {
-  try {
-    await deleteProduct(productId);
-
-    setProducts(prev =>
-      prev.filter(product => product.id !== productId)
-    );
-  } catch (error) {
-    console.error("Delete failed", error);
-  }
-};
+  const handleDeleteClick = async productId => {
+    try {
+      await deleteProduct(productId);
+      setProducts(prev => prev.filter(p => p.id !== productId));
+      showSnackbar("Product deleted successfully 🗑️");
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Delete failed", "error");
+    }
+  };
 
   const handleAddProduct = async () => {
-  try {
-    if (newProduct.id) {
-      // 🔁 UPDATE
-      await updateProduct(newProduct.id, {
-        ...newProduct,
-        updatedAt: new Date(),
-      });
+    try {
+      if (newProduct.id) {
+        // UPDATE
+        const updated = await updateProduct(newProduct.id, {
+          ...newProduct,
+          updatedAt: new Date(),
+        });
 
-      setProducts(prev =>
-        prev.map(p => (p.id === newProduct.id ? newProduct : p))
-      );
-    } else {
-      // ➕ ADD
-      const saved = await addProduct({
-        ...newProduct,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
+        setProducts(prev =>
+          prev.map(p => (p.id === updated.id ? updated : p))
+        );
 
-      setProducts(prev => [...prev, saved]);
+        showSnackbar("Product updated successfully ✅");
+      } else {
+        // ADD
+        const saved = await addProduct({
+          ...newProduct,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+
+        setProducts(prev => [...prev, saved]);
+        showSnackbar("Product added successfully 🎉");
+      }
+
+      handleClose();
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Save failed", "error");
     }
-
-    handleClose();
-    setEditingProduct(null);
-  } catch (err) {
-    console.error("Save failed", err);
-  }
-};
-
+  };
 
   const handleClearFilters = () => {
     setSearchQuery("");
@@ -190,66 +193,44 @@ const handleEditClick = (product) => {
     setTabValue(0);
   };
 
-  const paginatedProducts = getPaginatedProducts(filteredProducts, page, rowsPerPage);
+  const paginatedProducts = getPaginatedProducts(
+    filteredProducts,
+    page,
+    rowsPerPage
+  );
 
+  /* ===================== LOADING ===================== */
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
   }
 
+  /* ===================== UI ===================== */
   return (
     <Box sx={{ p: 3 }}>
       {/* Header */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h4" sx={{ color: "#1976d2", fontWeight: "bold" }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
+        <Typography variant="h4" fontWeight="bold" color="primary">
           Products Management
         </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
           onClick={handleOpen}
-          sx={{ textTransform: 'none' }}
         >
           Add Product
         </Button>
       </Box>
-
-      {/* Stats Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#e3f2fd' }}>
-            <Typography variant="h6" color="primary">{products.length}</Typography>
-            <Typography variant="body2" color="text.secondary">Total Products</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#f3e5f5' }}>
-            <Typography variant="h6" color="secondary">{categories.length}</Typography>
-            <Typography variant="body2" color="text.secondary">Categories</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#e8f5e9' }}>
-            <Typography variant="h6" sx={{ color: '#2e7d32' }}>{subcategories.length}</Typography>
-            <Typography variant="body2" color="text.secondary">Subcategories</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#fff3e0' }}>
-            <Typography variant="h6" sx={{ color: '#ef6c00' }}>
-              {products.filter(p => p.availableStock <= 0).length}
-            </Typography>
-            <Typography variant="body2" color="text.secondary">Out of Stock</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
-{/* 
-      <Alert severity="info" sx={{ mb: 3 }}>
-        Showing {filteredProducts.length} of {products.length} products
-      </Alert> */}
 
       {/* Filters */}
       <ProductFilters
@@ -263,21 +244,21 @@ const handleEditClick = (product) => {
         setSelectedSubcategory={setSelectedSubcategory}
         categories={categories}
         subcategories={subcategories}
-        handleTabChange={handleTabChange}
-        handleCategoryChange={handleCategoryChange}
-        handleSubcategoryChange={handleSubcategoryChange}
         handleClearFilters={handleClearFilters}
       />
 
-      {/* Products Table */}
+      {/* Table */}
       <ProductTable
         products={paginatedProducts}
         categories={categories}
         subcategories={subcategories}
         page={page}
         rowsPerPage={rowsPerPage}
-        handleChangePage={handleChangePage}
-        handleChangeRowsPerPage={handleChangeRowsPerPage}
+        handleChangePage={(e, p) => setPage(p)}
+        handleChangeRowsPerPage={e => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
         handleViewClick={handleViewClick}
         handleEditClick={handleEditClick}
         handleDeleteClick={handleDeleteClick}
@@ -302,6 +283,22 @@ const handleEditClick = (product) => {
         subcategories={subcategories}
         handleEditClick={handleEditClick}
       />
+
+      {/* Snackbar */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity={snackbar.severity}
+          variant="filled"
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
