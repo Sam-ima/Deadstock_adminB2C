@@ -12,7 +12,7 @@ import AddIcon from "@mui/icons-material/Add";
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
 import { AddProductDialog, ViewProductDialog } from "./product_dialog";
-import { fetchAllData,addProduct } from "./product_service";
+import { fetchAllData, addProduct, deleteProduct } from "./product_service";
 // import { addProduct } from "./product_service";
 
 import { applyProductFilters, getPaginatedProducts } from "./product_utils";
@@ -24,6 +24,8 @@ export default function ProductsPage() {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+
   
   // View dialog states
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -131,61 +133,55 @@ export default function ProductsPage() {
     setSelectedProduct(product);
     setViewDialogOpen(true);
   };
+const handleEditClick = (product) => {
+  setEditingProduct(product);
+  setNewProduct(product);
+  setOpen(true);
+};
 
-  const handleEditClick = (product) => {
-    // TODO: Implement edit functionality
-    console.log("Edit product:", product);
-  };
 
-  const handleDeleteClick = (productId) => {
-    // TODO: Implement delete functionality
-    console.log("Delete product:", productId);
-  };
+  const handleDeleteClick = async (productId) => {
+  try {
+    await deleteProduct(productId);
+
+    setProducts(prev =>
+      prev.filter(product => product.id !== productId)
+    );
+  } catch (error) {
+    console.error("Delete failed", error);
+  }
+};
 
   const handleAddProduct = async () => {
   try {
-    const productData = {
-      ...newProduct,
+    if (newProduct.id) {
+      // 🔁 UPDATE
+      await updateProduct(newProduct.id, {
+        ...newProduct,
+        updatedAt: new Date(),
+      });
 
-      basePrice: Number(newProduct.basePrice),
-      currentPrice: Number(newProduct.basePrice),
-      floorPrice: 0,
+      setProducts(prev =>
+        prev.map(p => (p.id === newProduct.id ? newProduct : p))
+      );
+    } else {
+      // ➕ ADD
+      const saved = await addProduct({
+        ...newProduct,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-      stock: Number(newProduct.stock),
-      availableStock: Number(newProduct.stock),
-      reservedStock: 0,
+      setProducts(prev => [...prev, saved]);
+    }
 
-      bulkDiscount: 0,
-      bulkPrice: null,
-      moq: 1,
-
-      rating: 0,
-      reviews: 0,
-      sold: 0,
-
-      features: [],
-      specifications: {},
-      images: [],
-
-      isDepreciating: false,
-      depreciationCount: 0,
-      lastDepreciatedAt: null,
-
-      requiresB2BVerification: false,
-      status: "active",
-
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    const savedProduct = await addProduct(productData);
-
-    setProducts(prev => [...prev, savedProduct]);
     handleClose();
+    setEditingProduct(null);
   } catch (err) {
-    console.error("Add product failed", err);
+    console.error("Save failed", err);
   }
 };
+
 
   const handleClearFilters = () => {
     setSearchQuery("");

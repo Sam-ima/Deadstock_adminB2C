@@ -96,7 +96,8 @@ const ProductTable = ({
                 </TableCell>
                 <TableCell>
                   <Chip
-                    label={product.stock || 0}
+                   label={product.availableStock ?? product.stock}
+
                     color={
                       product.stock > 10 ? "success" :
                       product.stock > 0 ? "warning" : "error"
