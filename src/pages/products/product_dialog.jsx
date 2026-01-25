@@ -144,13 +144,13 @@ export const AddProductDialog = ({
       
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button 
-          variant="contained" 
-          onClick={handleAddProduct}
-          disabled={!newProduct.name || !newProduct.categoryId || !newProduct.subcategoryId || !newProduct.basePrice}
-        >
-          Add Product
-        </Button>
+     <Button
+  variant="contained"
+  onClick={handleAddProduct}
+>
+  {newProduct.id ? "Update Product" : "Add Product"}
+</Button>
+
       </DialogActions>
     </Dialog>
   );
