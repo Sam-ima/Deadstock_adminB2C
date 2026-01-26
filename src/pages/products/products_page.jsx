@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   Button,
-  Grid,
-  Paper,
   CircularProgress,
   Snackbar,
   Alert,
@@ -13,7 +11,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
-import { AddProductDialog, ViewProductDialog } from "./product_dialog";
+import { AddProductDialog, ViewProductDialog } from "./product dialog/product_dialog";
 
 import {
   fetchAllData,
@@ -42,11 +40,13 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
 
+  // 🔥 FILTER STATE (IMPORTANT)
   const [tabValue, setTabValue] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -69,15 +69,6 @@ export default function ProductsPage() {
     saleType: "direct",
   });
 
-  /* ===================== HELPERS ===================== */
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleSnackbarClose = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
-  };
-
   /* ===================== FETCH DATA ===================== */
   useEffect(() => {
     const loadData = async () => {
@@ -89,8 +80,7 @@ export default function ProductsPage() {
         setProducts(data.products);
         setFilteredProducts(data.products);
       } catch (error) {
-        console.error("Failed to load data:", error);
-        showSnackbar("Failed to load data", "error");
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -99,7 +89,7 @@ export default function ProductsPage() {
     loadData();
   }, []);
 
-  /* ===================== FILTERS ===================== */
+  /* ===================== FILTER EFFECT ===================== */
   useEffect(() => {
     const filtered = applyProductFilters(
       products,
@@ -111,7 +101,33 @@ export default function ProductsPage() {
     setPage(0);
   }, [products, searchQuery, selectedCategory, selectedSubcategory]);
 
-  /* ===================== HANDLERS ===================== */
+  /* ===================== FILTER HANDLERS (🔥 REQUIRED) ===================== */
+  const handleTabChange = (_, newValue) => {
+    setTabValue(newValue);
+    if (newValue === 0) {
+      setSelectedCategory("all");
+      setSelectedSubcategory("all");
+    }
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setSelectedSubcategory("all");
+    setTabValue(1);
+  };
+
+  const handleSubcategoryChange = (e) => {
+    setSelectedSubcategory(e.target.value);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSelectedSubcategory("all");
+    setTabValue(0);
+  };
+
+  /* ===================== CRUD ===================== */
   const handleOpen = () => setOpen(true);
 
   const handleClose = () => {
@@ -143,54 +159,23 @@ export default function ProductsPage() {
   };
 
   const handleDeleteClick = async productId => {
-    try {
-      await deleteProduct(productId);
-      setProducts(prev => prev.filter(p => p.id !== productId));
-      showSnackbar("Product deleted successfully 🗑️");
-    } catch (error) {
-      console.error(error);
-      showSnackbar("Delete failed", "error");
-    }
+    await deleteProduct(productId);
+    setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
   const handleAddProduct = async () => {
-    try {
-      if (newProduct.id) {
-        // UPDATE
-        const updated = await updateProduct(newProduct.id, {
-          ...newProduct,
-          updatedAt: new Date(),
-        });
-
-        setProducts(prev =>
-          prev.map(p => (p.id === updated.id ? updated : p))
-        );
-
-        showSnackbar("Product updated successfully ✅");
-      } else {
-        // ADD
-        const saved = await addProduct({
-          ...newProduct,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-
-        setProducts(prev => [...prev, saved]);
-        showSnackbar("Product added successfully 🎉");
-      }
-
-      handleClose();
-    } catch (error) {
-      console.error(error);
-      showSnackbar("Save failed", "error");
+    if (newProduct.id) {
+      const updated = await updateProduct(newProduct.id, newProduct);
+      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+    } else {
+      const saved = await addProduct({
+        ...newProduct,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      setProducts(prev => [...prev, saved]);
     }
-  };
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("all");
-    setSelectedSubcategory("all");
-    setTabValue(0);
+    handleClose();
   };
 
   const paginatedProducts = getPaginatedProducts(
@@ -199,17 +184,9 @@ export default function ProductsPage() {
     rowsPerPage
   );
 
-  /* ===================== LOADING ===================== */
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "center", height: "100vh" }}>
         <CircularProgress />
       </Box>
     );
@@ -218,21 +195,16 @@ export default function ProductsPage() {
   /* ===================== UI ===================== */
   return (
     <Box sx={{ p: 3 }}>
-      {/* Header */}
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
         <Typography variant="h4" fontWeight="bold" color="primary">
           Products Management
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpen}
-        >
+        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
           Add Product
         </Button>
       </Box>
 
-      {/* Filters */}
+      {/*  FIXED FILTERS */}
       <ProductFilters
         tabValue={tabValue}
         setTabValue={setTabValue}
@@ -244,10 +216,12 @@ export default function ProductsPage() {
         setSelectedSubcategory={setSelectedSubcategory}
         categories={categories}
         subcategories={subcategories}
+        handleTabChange={handleTabChange}
+        handleCategoryChange={handleCategoryChange}
+        handleSubcategoryChange={handleSubcategoryChange}
         handleClearFilters={handleClearFilters}
       />
 
-      {/* Table */}
       <ProductTable
         products={paginatedProducts}
         categories={categories}
@@ -264,7 +238,6 @@ export default function ProductsPage() {
         handleDeleteClick={handleDeleteClick}
       />
 
-      {/* Dialogs */}
       <AddProductDialog
         open={open}
         handleClose={handleClose}
@@ -283,25 +256,10 @@ export default function ProductsPage() {
         subcategories={subcategories}
         handleEditClick={handleEditClick}
       />
-
-      {/* Snackbar */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbar.severity}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 }
+
 
 
 
