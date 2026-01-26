@@ -17,6 +17,7 @@ import {
   VisibilityOff as HiddenIcon,
   Category as CategoryIcon,
   WarningAmber as WarningIcon,
+  ShoppingCart as OrdersIcon, 
 } from "@mui/icons-material";
 
 // temporary frontend data (API simulation)
@@ -39,6 +40,14 @@ const DashboardContent = () => {
       icon: <ActiveIcon />,
       color: theme.palette.success.main,
     },
+    {
+      title: "Total Orders",
+      // value: dashboardData.totalOrders,
+      value: 0, // temporary value
+      icon: <OrdersIcon />,
+      color: theme.palette.secondary.main,
+    },
+
     // {
     //   title: "Hidden Products",
     //   // value: dashboardData.hiddenProducts,

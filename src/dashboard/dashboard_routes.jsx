@@ -12,6 +12,7 @@ export const componentMap = {
   "/customers": <CustomersPage />,
   "/products": <ProductsPage />,
   "/low-stock": <LowStockPage />,
+  "/orders": <OrdersPage />,
   // "/hidden-products": <HiddenProductsPage />,
   "/review": <ReviewPage />,
 };
