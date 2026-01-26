@@ -18,7 +18,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
-import { formatPrice, formatDate } from "./product_utils";
+import { formatPrice, formatDate } from "../product_utils";
 
 // Add Product Dialog Component
 export const AddProductDialog = ({
