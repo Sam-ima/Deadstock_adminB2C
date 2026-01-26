@@ -8,10 +8,11 @@ import {
   Alert,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-
+import { toast } from "react-toastify";
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
-import { AddProductDialog, ViewProductDialog } from "./product dialog/product_dialog";
+import AddProductDialog from "./product dialog/addProduct_dialog";
+import ViewProductDialog from "./product dialog/view_dialog";
 
 import {
   fetchAllData,
@@ -128,7 +129,22 @@ export default function ProductsPage() {
   };
 
   /* ===================== CRUD ===================== */
-  const handleOpen = () => setOpen(true);
+const handleOpen = () => {
+  setEditingProduct(null);
+  setNewProduct({
+    name: "",
+    slug: "",
+    categoryId: "",
+    subcategoryId: "",
+    basePrice: "",
+    stock: "",
+    description: "",
+    status: "active",
+    sellerType: "B2C",
+    saleType: "direct",
+  });
+  setOpen(true);
+};
 
   const handleClose = () => {
     setOpen(false);
@@ -161,12 +177,15 @@ export default function ProductsPage() {
   const handleDeleteClick = async productId => {
     await deleteProduct(productId);
     setProducts(prev => prev.filter(p => p.id !== productId));
+    toast.success("🗑️ Product deleted successfully!");
   };
 
   const handleAddProduct = async () => {
+    try {
     if (newProduct.id) {
       const updated = await updateProduct(newProduct.id, newProduct);
       setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
+      toast.success("✅ Product updated successfully!");  
     } else {
       const saved = await addProduct({
         ...newProduct,
@@ -174,9 +193,15 @@ export default function ProductsPage() {
         updatedAt: new Date(),
       });
       setProducts(prev => [...prev, saved]);
+      toast.success("🎉 Product added successfully!");
     }
     handleClose();
-  };
+  } catch (error) {
+    toast.error("❌ Something went wrong!");
+    console.error(error);
+  }
+};
+
 
   const paginatedProducts = getPaginatedProducts(
     filteredProducts,
