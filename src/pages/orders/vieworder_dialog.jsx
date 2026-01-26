@@ -13,24 +13,21 @@ import {
 
 const ViewOrderDialog = ({ open, onClose, order }) => {
   if (!order) return null;
-
-  const { deliveryDetails = {} } = order;
+  const { deliveryDetails = {}, items = [] } = order;
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Order Details</DialogTitle>
-
       <DialogContent dividers>
-        <Typography fontWeight="bold">Order ID</Typography>
+        <Typography fontWeight="bold">Order ID:</Typography>
         <Typography mb={2}>{order.id}</Typography>
 
         <Divider sx={{ mb: 2 }} />
 
-        <Typography fontWeight="bold">Customer</Typography>
+        <Typography fontWeight="bold">Customer:</Typography>
         <Typography>{deliveryDetails.fullName}</Typography>
         <Typography>{deliveryDetails.phone}</Typography>
-        <Typography>{deliveryDetails.address}</Typography>
-        <Typography>{deliveryDetails.city}</Typography>
+        <Typography>{deliveryDetails.address}, {deliveryDetails.city}</Typography>
 
         <Divider sx={{ my: 2 }} />
 
@@ -61,11 +58,16 @@ const ViewOrderDialog = ({ open, onClose, order }) => {
 
           <Grid item xs={6}>
             <Typography fontWeight="bold">Items</Typography>
-            <Typography>{order.items?.length}</Typography>
+            {items.length > 0 ? (
+              items.map((id, idx) => (
+                <Typography key={idx} variant="body2">{id}</Typography>
+              ))
+            ) : (
+              <Typography>No items</Typography>
+            )}
           </Grid>
         </Grid>
       </DialogContent>
-
       <DialogActions>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>

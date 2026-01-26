@@ -5,21 +5,20 @@ import {
   getDocs,
   query,
   orderBy,
+  doc,
+  updateDoc,
+  deleteDoc,
+  addDoc,
 } from "firebase/firestore";
-import { db } from "../../components/config/firebase"; 
+import { db } from "../../components/config/firebase";
 
-// 🔹 Async thunk to fetch orders
+// 🔹 Fetch all orders
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const q = query(
-        collection(db, "orders"),
-        orderBy("createdAt", "desc")
-      );
-
+      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
-
       const orders = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -27,8 +26,34 @@ export const fetchOrders = createAsyncThunk(
           ? doc.data().createdAt.toDate()
           : doc.data().createdAt,
       }));
-
       return orders;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// 🔹 Update an order
+export const updateOrder = createAsyncThunk(
+  "orders/updateOrder",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const orderRef = doc(db, "orders", id);
+      await updateDoc(orderRef, data);
+      return { id, data };
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+// 🔹 Delete an order
+export const deleteOrder = createAsyncThunk(
+  "orders/deleteOrder",
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteDoc(doc(db, "orders", id));
+      return id;
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -53,6 +78,7 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -64,13 +90,18 @@ const ordersSlice = createSlice({
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Update
+      .addCase(updateOrder.fulfilled, (state, action) => {
+        const index = state.list.findIndex((o) => o.id === action.payload.id);
+        if (index !== -1) state.list[index] = { ...state.list[index], ...action.payload.data };
+      })
+      // Delete
+      .addCase(deleteOrder.fulfilled, (state, action) => {
+        state.list = state.list.filter((o) => o.id !== action.payload);
       });
   },
 });
 
-export const {
-  setSelectedOrder,
-  clearSelectedOrder,
-} = ordersSlice.actions;
-
+export const { setSelectedOrder, clearSelectedOrder } = ordersSlice.actions;
 export default ordersSlice.reducer;
