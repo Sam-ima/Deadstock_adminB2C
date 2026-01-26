@@ -9,6 +9,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import CommonTable from "../../components/Table/common_table";
 import { formatDate } from "../products/product_utils";
@@ -20,6 +22,8 @@ const OrderTable = ({
   handleChangePage,
   handleChangeRowsPerPage,
   handleViewOrder,
+  handleEditOrder,
+  handleDeleteOrder,
 }) => {
   const columns = [
     { id: "sn", label: "#", width: "5%" },
@@ -45,14 +49,12 @@ const OrderTable = ({
       </TableCell>
 
       <TableCell>
-        <Box>
-          <Typography fontWeight="medium">
-            {order.deliveryDetails?.fullName}
-          </Typography>
-          <Typography variant="caption" color="text.secondary">
-            {order.deliveryDetails?.phone}
-          </Typography>
-        </Box>
+        <Typography fontWeight="medium">
+          {order.deliveryDetails?.fullName}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {order.deliveryDetails?.phone}
+        </Typography>
       </TableCell>
 
       <TableCell>
@@ -65,11 +67,7 @@ const OrderTable = ({
       </TableCell>
 
       <TableCell align="center">
-        <Chip
-          label={order.items?.length || 0}
-          size="small"
-          color="info"
-        />
+        <Chip label={order.items?.length || 0} size="small" color="info" />
       </TableCell>
 
       <TableCell>
@@ -79,11 +77,7 @@ const OrderTable = ({
       </TableCell>
 
       <TableCell>
-        <Chip
-          label={order.paymentMethod}
-          size="small"
-          color="secondary"
-        />
+        <Chip label={order.paymentMethod} size="small" color="secondary" />
       </TableCell>
 
       <TableCell>
@@ -106,6 +100,7 @@ const OrderTable = ({
         </Typography>
       </TableCell>
 
+      {/* ACTIONS */}
       <TableCell>
         <Tooltip title="View Order">
           <IconButton
@@ -114,6 +109,26 @@ const OrderTable = ({
             onClick={() => handleViewOrder(order)}
           >
             <VisibilityIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Edit Order">
+          <IconButton
+            size="small"
+            color="info"
+            onClick={() => handleEditOrder(order)}
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Delete Order">
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => handleDeleteOrder(order.id)}
+          >
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Tooltip>
       </TableCell>
