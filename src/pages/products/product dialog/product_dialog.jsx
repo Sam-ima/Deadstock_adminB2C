@@ -1,33 +1,29 @@
 import React from "react";
-import AddProductDialog from "./addProduct_dialog";
+import EditProductDialog from "./EditProductDialog";
 import ViewProductDialog from "./view_dialog";
 
 const ProductDialog = ({
-  addDialogOpen,
+  editDialogOpen,
   viewDialogOpen,
-  handleAddClose,
+  handleEditClose,
   handleViewClose,
 
-  newProduct,
-  setNewProduct,
-  categories,
-  subcategories,
-  handleAddProduct,
-
   selectedProduct,
+  setSelectedProduct,
+  subcategories,
+  handleUpdateProduct,
   handleEditClick,
 }) => {
   return (
     <>
-      {/* ADD / EDIT PRODUCT */}
-      <AddProductDialog
-        open={addDialogOpen}
-        handleClose={handleAddClose}
-        newProduct={newProduct}
-        setNewProduct={setNewProduct}
-        categories={categories}
+      {/* EDIT PRODUCT */}
+      <EditProductDialog
+        open={editDialogOpen}
+        handleClose={handleEditClose}
+        product={selectedProduct}
+        setProduct={setSelectedProduct}
         subcategories={subcategories}
-        handleAddProduct={handleAddProduct}
+        handleUpdateProduct={handleUpdateProduct}
       />
 
       {/* VIEW PRODUCT */}
@@ -35,7 +31,6 @@ const ProductDialog = ({
         open={viewDialogOpen}
         handleClose={handleViewClose}
         selectedProduct={selectedProduct}
-        categories={categories}
         subcategories={subcategories}
         handleEditClick={handleEditClick}
       />
@@ -44,7 +39,6 @@ const ProductDialog = ({
 };
 
 export default ProductDialog;
-
 
 
 // import React from "react";

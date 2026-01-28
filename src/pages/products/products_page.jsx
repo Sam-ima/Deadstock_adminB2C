@@ -11,7 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { toast } from "react-toastify";
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
-import AddProductDialog from "./product dialog/addProduct_dialog";
+import EditProductDialog from "./product dialog/editProduct_dialog";
+// import AddProductDialog from "./product dialog/addProduct_dialog";
 import ViewProductDialog from "./product dialog/view_dialog";
 
 import {
@@ -224,9 +225,9 @@ const handleOpen = () => {
         <Typography variant="h4" fontWeight="bold" color="primary">
           Products Management
         </Typography>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
+        {/* <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
           Add Product
-        </Button>
+        </Button> */}
       </Box>
 
       {/*  FIXED FILTERS */}
@@ -263,7 +264,7 @@ const handleOpen = () => {
         handleDeleteClick={handleDeleteClick}
       />
 
-      <AddProductDialog
+      {/* <AddProductDialog
         open={open}
         handleClose={handleClose}
         newProduct={newProduct}
@@ -271,7 +272,16 @@ const handleOpen = () => {
         categories={categories}
         subcategories={subcategories}
         handleAddProduct={handleAddProduct}
+      /> */}
+        <EditProductDialog
+        open={open}
+        handleClose={handleClose}
+        product={newProduct}
+        setProduct={setNewProduct}
+        subcategories={subcategories}
+        handleUpdateProduct={handleAddProduct}
       />
+
 
       <ViewProductDialog
         open={viewDialogOpen}
