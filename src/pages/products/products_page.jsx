@@ -1,287 +1,100 @@
 import React, { useEffect, useState } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
+import { useDispatch, useSelector } from "react-redux";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
+
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
 import EditProductDialog from "./product dialog/editProduct_dialog";
-// import AddProductDialog from "./product dialog/addProduct_dialog";
 import ViewProductDialog from "./product dialog/view_dialog";
 
 import {
   fetchAllData,
   addProduct,
-  deleteProduct,
   updateProduct,
-} from "./product_service";
-
-import {
-  applyProductFilters,
-  getPaginatedProducts,
-} from "./product_utils";
+  deleteProduct,
+} from "../../store/slices/product_slice";
 
 export default function ProductsPage() {
-  /* ===================== STATE ===================== */
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const dispatch = useDispatch();
 
-  const [loading, setLoading] = useState(true);
-
-  const [open, setOpen] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const {
+    products,
+    categories,
+    subcategories,
+    loading,
+  } = useSelector(state => state.product);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  // 🔥 FILTER STATE (IMPORTANT)
-  const [tabValue, setTabValue] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // Pagination
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
-
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    slug: "",
-    categoryId: "",
-    subcategoryId: "",
-    basePrice: "",
-    stock: "",
-    description: "",
-    status: "active",
-    sellerType: "B2C",
-    saleType: "direct",
-  });
-
-  /* ===================== FETCH DATA ===================== */
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchAllData();
-        setCategories(data.categories);
-        setSubcategories(data.subcategories);
-        setProducts(data.products);
-        setFilteredProducts(data.products);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    dispatch(fetchAllData());
+  }, [dispatch]);
 
-    loadData();
-  }, []);
-
-  /* ===================== FILTER EFFECT ===================== */
-  useEffect(() => {
-    const filtered = applyProductFilters(
-      products,
-      searchQuery,
-      selectedCategory,
-      selectedSubcategory
-    );
-    setFilteredProducts(filtered);
-    setPage(0);
-  }, [products, searchQuery, selectedCategory, selectedSubcategory]);
-
-  /* ===================== FILTER HANDLERS (🔥 REQUIRED) ===================== */
-  const handleTabChange = (_, newValue) => {
-    setTabValue(newValue);
-    if (newValue === 0) {
-      setSelectedCategory("all");
-      setSelectedSubcategory("all");
-    }
-  };
-
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-    setSelectedSubcategory("all");
-    setTabValue(1);
-  };
-
-  const handleSubcategoryChange = (e) => {
-    setSelectedSubcategory(e.target.value);
-  };
-
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setSelectedCategory("all");
-    setSelectedSubcategory("all");
-    setTabValue(0);
-  };
-
-  /* ===================== CRUD ===================== */
-const handleOpen = () => {
-  setEditingProduct(null);
-  setNewProduct({
-    name: "",
-    slug: "",
-    categoryId: "",
-    subcategoryId: "",
-    basePrice: "",
-    stock: "",
-    description: "",
-    status: "active",
-    sellerType: "B2C",
-    saleType: "direct",
-  });
-  setOpen(true);
-};
-
-  const handleClose = () => {
-    setOpen(false);
-    setEditingProduct(null);
-    setNewProduct({
-      name: "",
-      slug: "",
-      categoryId: "",
-      subcategoryId: "",
-      basePrice: "",
-      stock: "",
-      description: "",
-      status: "active",
-      sellerType: "B2C",
-      saleType: "direct",
-    });
-  };
-
-  const handleViewClick = product => {
-    setSelectedProduct(product);
-    setViewDialogOpen(true);
-  };
-
-  const handleEditClick = product => {
-    setEditingProduct(product);
-    setNewProduct(product);
-    setOpen(true);
-  };
-
-  const handleDeleteClick = async productId => {
-    await deleteProduct(productId);
-    setProducts(prev => prev.filter(p => p.id !== productId));
-    toast.success("🗑️ Product deleted successfully!");
-  };
-
-  const handleAddProduct = async () => {
+  const handleAddOrUpdate = async product => {
     try {
-    if (newProduct.id) {
-      const updated = await updateProduct(newProduct.id, newProduct);
-      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
-      toast.success("✅ Product updated successfully!");  
-    } else {
-      const saved = await addProduct({
-        ...newProduct,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
-      setProducts(prev => [...prev, saved]);
-      toast.success("🎉 Product added successfully!");
+      if (product.id) {
+        await dispatch(updateProduct({ id: product.id, data: product }));
+        toast.success("✅ Product updated");
+      } else {
+        await dispatch(addProduct(product));
+        toast.success("🎉 Product added");
+      }
+      setOpen(false);
+    } catch {
+      toast.error("❌ Something went wrong");
     }
-    handleClose();
-  } catch (error) {
-    toast.error("❌ Something went wrong!");
-    console.error(error);
-  }
-};
+  };
 
-
-  const paginatedProducts = getPaginatedProducts(
-    filteredProducts,
-    page,
-    rowsPerPage
-  );
+  const handleDelete = id => {
+    dispatch(deleteProduct(id));
+    toast.success("🗑️ Product deleted");
+  };
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", height: "100vh" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", height: "80vh" }}>
         <CircularProgress />
       </Box>
     );
   }
 
-  /* ===================== UI ===================== */
   return (
     <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}>
-        <Typography variant="h4" fontWeight="bold" color="primary">
-          Products Management
-        </Typography>
-        {/* <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpen}>
-          Add Product
-        </Button> */}
-      </Box>
+      <Typography variant="h4" fontWeight="bold" mb={3}>
+        Products Management
+      </Typography>
 
-      {/*  FIXED FILTERS */}
       <ProductFilters
-        tabValue={tabValue}
-        setTabValue={setTabValue}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
-        selectedSubcategory={selectedSubcategory}
-        setSelectedSubcategory={setSelectedSubcategory}
         categories={categories}
         subcategories={subcategories}
-        handleTabChange={handleTabChange}
-        handleCategoryChange={handleCategoryChange}
-        handleSubcategoryChange={handleSubcategoryChange}
-        handleClearFilters={handleClearFilters}
       />
 
       <ProductTable
-        products={paginatedProducts}
+        products={products}
         categories={categories}
         subcategories={subcategories}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        handleChangePage={(e, p) => setPage(p)}
-        handleChangeRowsPerPage={e => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setPage(0);
+        handleViewClick={p => {
+          setSelectedProduct(p);
+          setViewDialogOpen(true);
         }}
-        handleViewClick={handleViewClick}
-        handleEditClick={handleEditClick}
-        handleDeleteClick={handleDeleteClick}
+        handleEditClick={p => {
+          setSelectedProduct(p);
+          setOpen(true);
+        }}
+        handleDeleteClick={handleDelete}
       />
 
-      {/* <AddProductDialog
+      <EditProductDialog
         open={open}
-        handleClose={handleClose}
-        newProduct={newProduct}
-        setNewProduct={setNewProduct}
-        categories={categories}
+        handleClose={() => setOpen(false)}
+        product={selectedProduct}
+        setProduct={setSelectedProduct}
         subcategories={subcategories}
-        handleAddProduct={handleAddProduct}
-      /> */}
-        <EditProductDialog
-        open={open}
-        handleClose={handleClose}
-        product={newProduct}
-        setProduct={setNewProduct}
-        subcategories={subcategories}
-        handleUpdateProduct={handleAddProduct}
+        handleUpdateProduct={() => handleAddOrUpdate(selectedProduct)}
       />
-
 
       <ViewProductDialog
         open={viewDialogOpen}
@@ -289,7 +102,11 @@ const handleOpen = () => {
         selectedProduct={selectedProduct}
         categories={categories}
         subcategories={subcategories}
-        handleEditClick={handleEditClick}
+        handleEditClick={p => {
+          setViewDialogOpen(false);
+          setSelectedProduct(p);
+          setOpen(true);
+        }}
       />
     </Box>
   );
