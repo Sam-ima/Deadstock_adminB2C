@@ -1,10 +1,7 @@
 import React from "react";
 import {
   Paper,
-  Typography,
   Box,
-  Tab,
-  Tabs,
   Grid,
   TextField,
   FormControl,
@@ -13,6 +10,8 @@ import {
   MenuItem,
   Button,
   InputAdornment,
+  Tabs,
+  Tab
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -34,10 +33,12 @@ const ProductFilters = ({
   handleSubcategoryChange,
   handleClearFilters,
 }) => {
+
   const filteredSubcategories = getFilteredSubcategories(subcategories, selectedCategory);
 
   return (
     <Paper sx={{ mb: 3, p: 2 }}>
+      {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="All Products" />
@@ -45,7 +46,9 @@ const ProductFilters = ({
         </Tabs>
       </Box>
 
+      {/* Filters */}
       <Grid container spacing={2} alignItems="center">
+        {/* Search */}
         <Grid item xs={12} md={4}>
           <TextField
             fullWidth
@@ -61,7 +64,8 @@ const ProductFilters = ({
             }}
           />
         </Grid>
-        
+
+        {/* Category & Subcategory */}
         {tabValue === 1 && (
           <>
             <Grid item xs={12} md={3}>
@@ -81,7 +85,7 @@ const ProductFilters = ({
                 </Select>
               </FormControl>
             </Grid>
-            
+
             <Grid item xs={12} md={3}>
               <FormControl fullWidth disabled={selectedCategory === "all"}>
                 <InputLabel>Subcategory</InputLabel>
@@ -101,7 +105,8 @@ const ProductFilters = ({
             </Grid>
           </>
         )}
-        
+
+        {/* Clear Button */}
         <Grid item xs={12} md={2}>
           <Button
             fullWidth
