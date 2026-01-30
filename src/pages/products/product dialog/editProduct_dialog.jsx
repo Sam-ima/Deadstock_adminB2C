@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 
+/* ===================== UI SECTION ===================== */
 const Section = ({ title, children }) => (
   <Card variant="outlined" sx={{ mb: 2 }}>
     <CardContent>
@@ -33,22 +34,35 @@ const Section = ({ title, children }) => (
   </Card>
 );
 
+/* ===================== COMPONENT ===================== */
 const EditProductDialog = ({
   open,
   handleClose,
   product,
   setProduct,
-  subcategories,
+  categories = [],
+  subcategories = [],
   handleUpdateProduct,
 }) => {
-  const handleChange = (field) => (e) => {
+
+  if (!open || !product) return null;
+
+  /* ---------- Handlers ---------- */
+  const handleChange = field => e => {
     const value =
       e.target.type === "number" ? Number(e.target.value) : e.target.value;
 
     setProduct({ ...product, [field]: value });
   };
 
-  if (!product) return null;
+  /* ---------- Filter subcategories by category ---------- */
+const filteredSubcategories = useMemo(() => {
+  if (!product?.categoryId) return [];
+  return subcategories.filter(
+    sub => sub.categoryId === product.categoryId
+  );
+}, [subcategories, product?.categoryId]);
+
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -66,7 +80,7 @@ const EditProductDialog = ({
       </DialogTitle>
 
       <DialogContent sx={{ mt: 2 }}>
-        {/* BASIC INFO */}
+        {/* ================= BASIC INFO ================= */}
         <Section title="Basic Information">
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
@@ -87,17 +101,42 @@ const EditProductDialog = ({
               />
             </Grid>
 
+            {/* CATEGORY */}
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={product.categoryId || ""}
+                  label="Category"
+                  onChange={e =>
+                    setProduct({
+                      ...product,
+                      categoryId: e.target.value,
+                      subcategoryId: "",
+                    })
+                  }
+                >
+                  {categories.map(cat => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {cat.icon} {cat.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            {/* SUBCATEGORY */}
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
                 <InputLabel>Subcategory</InputLabel>
                 <Select
                   value={product.subcategoryId || ""}
-                  onChange={handleChange("subcategoryId")}
                   label="Subcategory"
+                  onChange={handleChange("subcategoryId")}
                 >
-                  {subcategories.map((item) => (
-                    <MenuItem key={item.id} value={item.id}>
-                      {item.name}
+                  {filteredSubcategories.map(sub => (
+                    <MenuItem key={sub.id} value={sub.id}>
+                      {sub.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -117,20 +156,20 @@ const EditProductDialog = ({
           </Grid>
         </Section>
 
-        {/* PRICING */}
-        <Section title="Pricing">
+        {/* ================= PRICING ================= */}
+        <Section title="Pricing & MOQ">
           <Grid container spacing={2}>
             {[
-              "basePrice",
-              "floorPrice",
-              "bulkDiscount",
-              "bulkPrice",
-              "moq",
-              "age_days",
-            ].map((field) => (
+              ["basePrice", "Base Price"],
+              ["floorPrice", "Floor Price"],
+              ["bulkPrice", "Bulk Price"],
+              ["bulkDiscount", "Bulk Discount (%)"],
+              ["moq", "MOQ"],
+              ["age_days", "Age (Days)"],
+            ].map(([field, label]) => (
               <Grid item xs={12} md={4} key={field}>
                 <TextField
-                  label={field.replace("_", " ").toUpperCase()}
+                  label={label}
                   type="number"
                   fullWidth
                   value={product[field] ?? ""}
@@ -141,7 +180,29 @@ const EditProductDialog = ({
           </Grid>
         </Section>
 
-        {/* FLAGS */}
+        {/* ================= STOCK ================= */}
+        <Section title="Stock Information">
+          <Grid container spacing={2}>
+            {[
+              ["stock", "Total Stock"],
+              ["availableStock", "Available Stock"],
+              ["reservedStock", "Reserved Stock"],
+              ["sold", "Sold"],
+            ].map(([field, label]) => (
+              <Grid item xs={12} md={3} key={field}>
+                <TextField
+                  label={label}
+                  type="number"
+                  fullWidth
+                  value={product[field] ?? ""}
+                  onChange={handleChange(field)}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Section>
+
+        {/* ================= FLAGS ================= */}
         <Section title="Product Settings">
           <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
@@ -149,7 +210,7 @@ const EditProductDialog = ({
                 control={
                   <Switch
                     checked={product.isDepreciating || false}
-                    onChange={(e) =>
+                    onChange={e =>
                       setProduct({
                         ...product,
                         isDepreciating: e.target.checked,
@@ -165,11 +226,30 @@ const EditProductDialog = ({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={product.status === "active"}
-                    onChange={(e) =>
+                    checked={product.requiresB2BVerification || false}
+                    onChange={e =>
                       setProduct({
                         ...product,
-                        status: e.target.checked ? "active" : "inactive",
+                        requiresB2BVerification: e.target.checked,
+                      })
+                    }
+                  />
+                }
+                label="B2B Verification"
+              />
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={product.status === "active"}
+                    onChange={e =>
+                      setProduct({
+                        ...product,
+                        status: e.target.checked
+                          ? "active"
+                          : "inactive",
                       })
                     }
                   />
