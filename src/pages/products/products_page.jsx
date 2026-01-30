@@ -149,16 +149,18 @@ export default function ProductsPage() {
         handleDeleteClick={handleDelete}
       />
 
-      <EditProductDialog
-        open={open}
-        handleClose={() => setOpen(false)}
-        product={selectedProduct}
-        setProduct={setSelectedProduct}
-        subcategories={subcategories}
-        handleUpdateProduct={() =>
-          handleAddOrUpdate(selectedProduct)
-        }
-      />
+<EditProductDialog
+  open={open}
+  handleClose={() => setOpen(false)}
+  product={selectedProduct}
+  setProduct={setSelectedProduct}
+  categories={categories}       
+  subcategories={subcategories} 
+  handleUpdateProduct={() =>
+    handleAddOrUpdate(selectedProduct)
+  }
+/>
+
 
       <ViewProductDialog
         open={viewDialogOpen}
