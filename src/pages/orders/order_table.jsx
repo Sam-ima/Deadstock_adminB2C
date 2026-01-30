@@ -27,7 +27,7 @@ const OrderTable = ({
 }) => {
   const columns = [
     { id: "sn", label: "#", width: "5%" },
-    { id: "orderId", label: "Order ID", width: "20%" },
+    // { id: "orderId", label: "Order ID", width: "20%" },
     { id: "customer", label: "Customer", width: "15%" },
     { id: "location", label: "Location", width: "15%" },
     { id: "items", label: "Items", width: "8%" },
@@ -42,11 +42,11 @@ const OrderTable = ({
     <TableRow key={order.id} hover>
       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
 
-      <TableCell>
+      {/* <TableCell>
         <Typography variant="body2" fontWeight="medium" noWrap>
           {order.id}
         </Typography>
-      </TableCell>
+      </TableCell> */}
 
       <TableCell>
         <Typography fontWeight="medium">
