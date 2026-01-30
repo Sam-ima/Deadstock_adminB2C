@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
@@ -18,12 +18,14 @@ import {
 export default function ProductsPage() {
   const dispatch = useDispatch();
 
-  const {
-    products,
-    categories,
-    subcategories,
-    loading,
-  } = useSelector(state => state.product);
+  const { products, categories, subcategories, loading } = useSelector(
+    state => state.product
+  );
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+  const [tabValue, setTabValue] = useState(0);
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
@@ -32,6 +34,46 @@ export default function ProductsPage() {
   useEffect(() => {
     dispatch(fetchAllData());
   }, [dispatch]);
+
+  // 🔥 APPLY FILTERS HERE
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      // 🔍 Search
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.slug?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // 📂 Category
+      const matchesCategory =
+        selectedCategory === "all" ||
+        product.categoryId === selectedCategory;
+
+      // 📁 Subcategory
+      const matchesSubcategory =
+        selectedSubcategory === "all" ||
+        product.subcategoryId === selectedSubcategory;
+
+      // 📌 Tabs (status)
+      const matchesTab =
+        tabValue === 0 ||
+        (tabValue === 1 && product.status === "active") ||
+        (tabValue === 2 && product.status === "draft") ||
+        (tabValue === 3 && product.status === "inactive");
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesSubcategory &&
+        matchesTab
+      );
+    });
+  }, [
+    products,
+    searchQuery,
+    selectedCategory,
+    selectedSubcategory,
+    tabValue,
+  ]);
 
   const handleAddOrUpdate = async product => {
     try {
@@ -68,12 +110,32 @@ export default function ProductsPage() {
       </Typography>
 
       <ProductFilters
+        tabValue={tabValue}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedCategory={selectedCategory}
+        selectedSubcategory={selectedSubcategory}
         categories={categories}
         subcategories={subcategories}
+        handleTabChange={(e, v) => setTabValue(v)}
+        handleCategoryChange={e => {
+          setSelectedCategory(e.target.value);
+          setSelectedSubcategory("all");
+        }}
+        handleSubcategoryChange={e =>
+          setSelectedSubcategory(e.target.value)
+        }
+        handleClearFilters={() => {
+          setSearchQuery("");
+          setSelectedCategory("all");
+          setSelectedSubcategory("all");
+          setTabValue(0);
+        }}
       />
 
+      {/* ✅ PASS FILTERED PRODUCTS */}
       <ProductTable
-        products={products}
+        products={filteredProducts}
         categories={categories}
         subcategories={subcategories}
         handleViewClick={p => {
@@ -93,7 +155,9 @@ export default function ProductsPage() {
         product={selectedProduct}
         setProduct={setSelectedProduct}
         subcategories={subcategories}
-        handleUpdateProduct={() => handleAddOrUpdate(selectedProduct)}
+        handleUpdateProduct={() =>
+          handleAddOrUpdate(selectedProduct)
+        }
       />
 
       <ViewProductDialog
@@ -111,6 +175,7 @@ export default function ProductsPage() {
     </Box>
   );
 }
+
 
 
 
