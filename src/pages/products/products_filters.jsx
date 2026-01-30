@@ -11,7 +11,7 @@ import {
   Button,
   InputAdornment,
   Tabs,
-  Tab
+  Tab,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList";
@@ -19,13 +19,10 @@ import { getFilteredSubcategories } from "./product_utils";
 
 const ProductFilters = ({
   tabValue,
-  setTabValue,
   searchQuery,
   setSearchQuery,
   selectedCategory,
-  setSelectedCategory,
   selectedSubcategory,
-  setSelectedSubcategory,
   categories,
   subcategories,
   handleTabChange,
@@ -33,13 +30,15 @@ const ProductFilters = ({
   handleSubcategoryChange,
   handleClearFilters,
 }) => {
-
-  const filteredSubcategories = getFilteredSubcategories(subcategories, selectedCategory);
+  const filteredSubcategories = getFilteredSubcategories(
+    subcategories,
+    selectedCategory
+  );
 
   return (
     <Paper sx={{ mb: 3, p: 2 }}>
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
         <Tabs value={tabValue} onChange={handleTabChange}>
           <Tab label="All Products" />
           <Tab label="By Category" />
@@ -68,6 +67,7 @@ const ProductFilters = ({
         {/* Category & Subcategory */}
         {tabValue === 1 && (
           <>
+            {/* Category */}
             <Grid item xs={12} md={3}>
               <FormControl fullWidth>
                 <InputLabel>Category</InputLabel>
@@ -77,15 +77,16 @@ const ProductFilters = ({
                   onChange={handleCategoryChange}
                 >
                   <MenuItem value="all">All Categories</MenuItem>
-                  {categories.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      {category.icon} {category.name}
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>
+                      {cat.name}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Grid>
 
+            {/* Subcategory */}
             <Grid item xs={12} md={3}>
               <FormControl fullWidth disabled={selectedCategory === "all"}>
                 <InputLabel>Subcategory</InputLabel>
@@ -95,9 +96,10 @@ const ProductFilters = ({
                   onChange={handleSubcategoryChange}
                 >
                   <MenuItem value="all">All Subcategories</MenuItem>
-                  {filteredSubcategories.map((subcategory) => (
-                    <MenuItem key={subcategory.id} value={subcategory.id}>
-                      {subcategory.name}
+
+                  {filteredSubcategories.map((sub) => (
+                    <MenuItem key={sub.id} value={sub.id}>
+                      {sub.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -106,7 +108,7 @@ const ProductFilters = ({
           </>
         )}
 
-        {/* Clear Button */}
+        {/* Clear Filters */}
         <Grid item xs={12} md={2}>
           <Button
             fullWidth
