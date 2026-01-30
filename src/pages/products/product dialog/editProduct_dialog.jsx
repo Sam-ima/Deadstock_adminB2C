@@ -155,6 +155,16 @@ const filteredSubcategories = useMemo(() => {
             </Grid>
           </Grid>
         </Section>
+                      {/* COLOR */}
+    <Grid item xs={12} md={6}>
+              <TextField
+                label="Color (Hex Code)"
+                fullWidth
+                placeholder="#3F51B5"
+                value={product.color || ""}
+                onChange={handleChange("color")}
+              />
+            </Grid>
 
         {/* ================= PRICING ================= */}
         <Section title="Pricing & MOQ">

@@ -32,21 +32,27 @@ const ProductTable = ({
   handleEditClick,
   handleDeleteClick,
 }) => {
-  const columns = [
-    { id: "sn", label: "#", width: "5%" },
-    { id: "details", label: "Product Details", width: "25%" },
-    { id: "category", label: "Category", width: "15%" },
-    { id: "price", label: "Price", width: "10%" },
-    { id: "stock", label: "Stock", width: "10%" },
-    { id: "status", label: "Status", width: "10%" },
-    { id: "created", label: "Created", width: "10%" },
-    { id: "actions", label: "Actions", width: "15%" },
-  ];
+const columns = [
+  { id: "sn", label: "#", width: "5%" },
+  { id: "details", label: "Product Details", width: "20%" },
+  { id: "category", label: "Category", width: "15%" },
+  { id: "color", label: "Color", width: "5%" },
+  // { id: "icon", label: "Icon", width: "5%" },
+  { id: "price", label: "Price", width: "10%" },
+  { id: "stock", label: "Stock", width: "10%" },
+  { id: "status", label: "Status", width: "10%" },
+  { id: "created", label: "Created", width: "10%" },
+  { id: "actions", label: "Actions", width: "10%" },
+];
+
 
   const renderRow = (product, index) => (
     <TableRow key={product.id} hover>
-      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-
+      <TableCell>
+        {Number.isFinite(page) && Number.isFinite(rowsPerPage)
+          ? page * rowsPerPage + index + 1
+          : index + 1}
+      </TableCell>
       <TableCell>
         <Box>
           <Typography fontWeight="medium">{product.name}</Typography>
@@ -68,6 +74,29 @@ const ProductTable = ({
         <Typography variant="caption" color="text.secondary">
           {getSubcategoryName(subcategories, product.subcategoryId)}
         </Typography>
+      </TableCell>
+      <TableCell>
+        <Box
+          sx={{
+            width: 24,
+            height: 24,
+            borderRadius: "50%",
+            border: "1px solid #ccc",
+            bgcolor: (() => {
+              // Use product.color if defined, else fallback to category color
+              let color = product.color;
+              if (!color) {
+                const category = categories.find(c => c.id === product.categoryId);
+                color = category?.color || "#000"; // fallback black
+              }
+              // Remove quotes if present
+              if (color.startsWith('"') && color.endsWith('"')) {
+                color = color.slice(1, -1);
+              }
+              return color;
+            })(),
+          }}
+        />
       </TableCell>
 
       <TableCell>
