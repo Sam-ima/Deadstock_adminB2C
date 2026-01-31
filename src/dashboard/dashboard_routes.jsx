@@ -9,7 +9,7 @@ import ReviewPage from "../pages/reviews/review.page";
 export const componentMap = {
   "/dashboard": <DashboardContent />,
   "/sellers": <SellersPage />,
-  "/customers": <CustomersPage />,
+  "/buyers": <CustomersPage />,
   "/products": <ProductsPage />,
   "/low-stock": <LowStockPage />,
   // "/hidden-products": <HiddenProductsPage />,
