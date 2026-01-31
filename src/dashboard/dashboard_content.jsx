@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import {
   Typography,
   Container,
@@ -17,28 +19,55 @@ import {
   VisibilityOff as HiddenIcon,
   Category as CategoryIcon,
   WarningAmber as WarningIcon,
+  ShoppingCart as OrdersIcon, 
 } from "@mui/icons-material";
 
 // temporary frontend data (API simulation)
 // import { dashboardData } from "../store/dashboardData";
 
+
+import { fetchAllData } from "../store/slices/product_slice";
+import { fetchOrders } from "../store/slices/order_slice";
+
 const DashboardContent = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+   const dispatch = useDispatch();
+
+     // Fetch products and orders from Redux
+  const { products } = useSelector((state) => state.product);
+  const { list: orders } = useSelector((state) => state.orders);
+
+  // Fetch data on mount
+  useEffect(() => {
+    dispatch(fetchAllData());
+    dispatch(fetchOrders());
+  }, [dispatch]);
+
 
   const cardData = [
     {
       title: "Total Products",
       // value: dashboardData.totalProducts,
+       value: products.length,
       icon: <InventoryIcon />,
       color: theme.palette.primary.main,
     },
     {
       title: "Active Products",
       // value: dashboardData.activeProducts,
+      value: products.filter((p) => p.status === "active").length,
       icon: <ActiveIcon />,
       color: theme.palette.success.main,
     },
+    {
+      title: "Total Orders",
+      // value: dashboardData.totalOrders,
+       value: orders.length,
+      icon: <OrdersIcon />,
+      color: theme.palette.secondary.main,
+    },
+
     // {
     //   title: "Hidden Products",
     //   // value: dashboardData.hiddenProducts,
@@ -47,12 +76,14 @@ const DashboardContent = () => {
     // },
     {
       title: "Categories",
+      value: useSelector((state) => state.product.categories.length),
       // value: dashboardData.categories,
       icon: <CategoryIcon />,
       color: theme.palette.info.main,
     },
     {
       title: "Low Stock Items",
+       value: products.filter((p) => (p.stock ?? 0) <= 10).length,
       // value: dashboardData.lowStock,
       icon: <WarningIcon />,
       color: theme.palette.warning.main,

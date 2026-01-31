@@ -5,6 +5,7 @@ import ProductionQuantityLimitsIcon from "@mui/icons-material/ProductionQuantity
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export const NAVIGATION = [
@@ -12,6 +13,7 @@ export const NAVIGATION = [
   { segment: "sellers", title: "Sellers", icon: <Inventory2Icon /> },
   { segment: "buyers", title: "Buyers", icon: <AccountCircleIcon /> },
   { segment: "products", title: "Products", icon: <ProductionQuantityLimitsIcon /> },
+   { segment: "orders", title: "Orders", icon: <ShoppingCartIcon /> },
   { segment: "low-stock", title: "Low Stock", icon: <WarningAmberIcon /> },
   // { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
   { segment: "reviews", title: "Reviews", icon: <VisibilityIcon /> },
