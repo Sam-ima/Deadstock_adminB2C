@@ -23,7 +23,7 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { db } from "../firebase"; // adjust path
+import { db } from "../config/firebase";
 
 const BuyerTable = () => {
   const [buyers, setBuyers] = useState([]);

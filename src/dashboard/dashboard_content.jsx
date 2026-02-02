@@ -18,12 +18,13 @@ import {
   Visibility as ActiveIcon,
   VisibilityOff as HiddenIcon,
   Category as CategoryIcon,
-  WarningAmber as WarningIcon,
   ShoppingCart as OrdersIcon, 
   People as BuyersIcon,
   Store as SellersIcon,
   Paid as CommissionIcon,
 } from "@mui/icons-material";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+
 
 // temporary frontend data (API simulation)
 // import { dashboardData } from "../store/dashboardData";
@@ -105,10 +106,10 @@ const DashboardContent = () => {
       color: theme.palette.info.main,
     },
     {
-      title: "Low Stock Items",
-       value: products.filter((p) => (p.stock ?? 0) <= 10).length,
+      title: "Seller Settlement", 
+      //  value: products.filter((p) => (p.stock ?? 0) <= 10).length,
       // value: dashboardData.lowStock,
-      icon: <WarningIcon />,
+      icon: <AccountBalanceWalletIcon /> ,
       color: theme.palette.warning.main,
     },
   ];
