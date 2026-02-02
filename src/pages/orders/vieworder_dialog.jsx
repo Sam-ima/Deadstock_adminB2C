@@ -9,6 +9,7 @@ import {
   Button,
   Divider,
   Chip,
+  Box,
 } from "@mui/material";
 
 const ViewOrderDialog = ({ open, onClose, order }) => {
@@ -56,16 +57,28 @@ const ViewOrderDialog = ({ open, onClose, order }) => {
             <Typography>Rs {order.totalAmount}</Typography>
           </Grid>
 
-          <Grid item xs={6}>
-            <Typography fontWeight="bold">Items</Typography>
-            {items.length > 0 ? (
-              items.map((id, idx) => (
-                <Typography key={idx} variant="body2">{id}</Typography>
-              ))
-            ) : (
-              <Typography>No items</Typography>
-            )}
-          </Grid>
+<Grid item xs={6}>
+  <Typography fontWeight="bold">Items</Typography>
+
+  {items.length > 0 ? (
+    items.map((item, idx) => (
+      <Box key={item.productId || idx} mb={1}>
+        <Typography variant="body2" fontWeight="medium">
+          {item.name}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Qty: {item.quantity} × Rs {item.price}
+        </Typography>
+        <Typography variant="caption" display="block">
+          Subtotal: Rs {item.subtotal}
+        </Typography>
+      </Box>
+    ))
+  ) : (
+    <Typography>No items</Typography>
+  )}
+</Grid>
+
         </Grid>
       </DialogContent>
       <DialogActions>
