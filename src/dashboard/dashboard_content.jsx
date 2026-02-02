@@ -20,6 +20,9 @@ import {
   Category as CategoryIcon,
   WarningAmber as WarningIcon,
   ShoppingCart as OrdersIcon, 
+  People as BuyersIcon,
+  Store as SellersIcon,
+  Paid as CommissionIcon,
 } from "@mui/icons-material";
 
 // temporary frontend data (API simulation)
@@ -67,6 +70,26 @@ const DashboardContent = () => {
       icon: <OrdersIcon />,
       color: theme.palette.secondary.main,
     },
+    {
+  title: "Total Buyers",
+  // value: buyers.length, 
+  icon: <BuyersIcon/>,
+  color: theme.palette.primary.light,
+},
+{
+  title: "Total Sellers",
+  // value: sellers.length, // from Redux later
+  icon: <SellersIcon />,
+  color: theme.palette.info.main,
+},
+
+{
+  title: "Total Commission",
+  // value: `₹${totalCommission}`, 
+  icon: <CommissionIcon />,
+  color: theme.palette.success.dark,
+},
+
 
     // {
     //   title: "Hidden Products",
