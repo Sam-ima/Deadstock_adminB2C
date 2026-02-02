@@ -11,14 +11,14 @@ import { dashboardTheme } from "./dashboard_theme";
 import { resolveComponent } from "./dashboard_routes";
 import ToolbarActions from "./toolbar_actions";
 
-import logo from "../assets/ChatGPT Image Dec 23, 2025, 11_11_06 PM.png";
+// import logo from "../assets/ChatGPT Image Dec 23, 2025, 11_11_06 PM.png";
 
 const BRANDING = {
   title: "Deadstock Admin",
   logo: (
     <img
-      src={logo}
-      alt="Deadstock Logo"
+      src="/logo.png"
+       alt="Deadstock Logo"
       style={{ height: 50, width: 50, borderRadius: "50%" }}
     />
   ),
