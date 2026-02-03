@@ -36,9 +36,8 @@ const columns = [
   { id: "sn", label: "#", width: "5%" },
   { id: "details", label: "Product Details", width: "20%" },
   { id: "category", label: "Category", width: "15%" },
-  // { id: "color", label: "Color", width: "5%" },
-  // { id: "icon", label: "Icon", width: "5%" },
-  { id: "price", label: "Price", width: "10%" },
+  { id: "currentPrice", label: "Current Price", width: "10%" },
+  { id: "basePrice", label: "Base Price", width: "10%" },
   { id: "stock", label: "Stock", width: "10%" },
   { id: "status", label: "Status", width: "10%" },
   { id: "created", label: "Created", width: "10%" },
@@ -130,14 +129,18 @@ const paginatedProducts = safeProducts.slice(
         />
       </TableCell> */}
 
-      <TableCell>
-        <Typography color="success.main">
-          Rs {formatPrice(product.currentPrice || product.basePrice)}
-        </Typography>
-        <Typography variant="caption">
-          Base: Rs {formatPrice(product.basePrice)}
-        </Typography>
-      </TableCell>
+        <TableCell>
+          <Typography color="success.main">
+            Rs {formatPrice(product.currentPrice || product.basePrice)}
+          </Typography>
+        </TableCell>
+
+        <TableCell>
+          <Typography color="text.secondary">
+            Rs {formatPrice(product.basePrice)}
+          </Typography>
+        </TableCell>
+
 
       <TableCell>
         <Chip
