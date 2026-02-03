@@ -1,3 +1,4 @@
+import React from "react";
 import DashboardContent from "./dashboard_content";
 import SellersPage from "../pages/sellers/seller.page";
 import CustomersPage from "../pages/customers/customer.page";
@@ -18,5 +19,10 @@ export const componentMap = {
   "/review": <ReviewPage />,
 };
 
-export const resolveComponent = (path) =>
-  componentMap[path] || <DashboardContent />;
+export const resolveComponent = (path, navigate) => {
+  const component = componentMap[path];
+  if (component) {
+    return React.cloneElement(component, { navigate });
+  }
+  return <DashboardContent navigate={navigate} />;
+};

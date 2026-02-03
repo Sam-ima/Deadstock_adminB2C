@@ -24,10 +24,10 @@ const BRANDING = {
   ),
 };
 
-function PageContent({ pathname }) {
+function PageContent({ pathname, navigate  }) {
   return (
     <Box sx={{ p: 2, width: "100%", overflowX: "hidden" }}>
-      {resolveComponent(pathname)}
+      {resolveComponent(pathname,navigate)}
     </Box>
   );
 }
@@ -64,7 +64,7 @@ export default function DashboardTabs({ window }) {
         setPathname(String(path));
       },
     }),
-    [pathname, navigate] // Add dependencies
+    [pathname] // Add dependencies
   );
 
   return (
@@ -80,7 +80,7 @@ export default function DashboardTabs({ window }) {
           toolbarActions: () => <ToolbarActions navigate={navigate} />,
         }}
       >
-        <PageContent pathname={pathname} />
+      <PageContent pathname={pathname} navigate={router.navigate} />
       </DashboardLayout>
     </AppProvider>
   );

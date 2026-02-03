@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import {
   Typography,
@@ -33,7 +34,9 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { fetchAllData } from "../store/slices/product_slice";
 import { fetchOrders } from "../store/slices/order_slice";
 
-const DashboardContent = () => {
+const DashboardContent = ({ navigate }) => {
+  // const navigate = useNavigate();
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
    const dispatch = useDispatch();
@@ -55,6 +58,7 @@ const DashboardContent = () => {
       // value: dashboardData.totalProducts,
        value: products.length,
       icon: <InventoryIcon />,
+       onClick: () => navigate("/products"),
       color: theme.palette.primary.main,
     },
     {
@@ -62,6 +66,7 @@ const DashboardContent = () => {
       // value: dashboardData.activeProducts,
       value: products.filter((p) => p.status === "active").length,
       icon: <ActiveIcon />,
+        onClick: () => navigate("/products"),
       color: theme.palette.success.main,
     },
     {
@@ -70,18 +75,22 @@ const DashboardContent = () => {
        value: orders.length,
       icon: <OrdersIcon />,
       color: theme.palette.secondary.main,
+      onClick: () => navigate("/orders"),
     },
     {
   title: "Total Buyers",
   // value: buyers.length, 
   icon: <BuyersIcon/>,
   color: theme.palette.primary.light,
+  onClick: () => navigate("/buyers"),
+
 },
 {
   title: "Total Sellers",
   // value: sellers.length, // from Redux later
   icon: <SellersIcon />,
   color: theme.palette.info.main,
+  onClick: () => navigate("/sellers"),
 },
 
 {
@@ -104,6 +113,7 @@ const DashboardContent = () => {
       // value: dashboardData.categories,
       icon: <CategoryIcon />,
       color: theme.palette.info.main,
+      onClick: () => navigate("/categories"),
     },
     {
       title: "Seller Settlement", 
@@ -165,8 +175,10 @@ const DashboardContent = () => {
           >
             <Card
               elevation={4}
+              onClick={card.onClick}
               sx={{
                 width: "100%",
+                 cursor: "pointer",
                 transition: "transform 0.3s, box-shadow 0.3s",
                 "&:hover": {
                   transform: "translateY(-6px)",
