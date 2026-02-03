@@ -44,7 +44,6 @@ const EditProductDialog = ({
   subcategories = [],
   handleUpdateProduct,
 }) => {
-
   if (!open || !product) return null;
 
   /* ---------- Handlers ---------- */
@@ -56,13 +55,10 @@ const EditProductDialog = ({
   };
 
   /* ---------- Filter subcategories by category ---------- */
-const filteredSubcategories = useMemo(() => {
-  if (!product?.categoryId) return [];
-  return subcategories.filter(
-    sub => sub.categoryId === product.categoryId
-  );
-}, [subcategories, product?.categoryId]);
-
+  const filteredSubcategories = useMemo(() => {
+    if (!product?.categoryId) return [];
+    return subcategories.filter(sub => sub.categoryId === product.categoryId);
+  }, [subcategories, product?.categoryId]);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
@@ -153,10 +149,9 @@ const filteredSubcategories = useMemo(() => {
                 onChange={handleChange("description")}
               />
             </Grid>
-          </Grid>
-        </Section>
-                      {/* COLOR */}
-    <Grid item xs={12} md={6}>
+
+            {/* COLOR */}
+            <Grid item xs={12} md={6}>
               <TextField
                 label="Color (Hex Code)"
                 fullWidth
@@ -165,6 +160,8 @@ const filteredSubcategories = useMemo(() => {
                 onChange={handleChange("color")}
               />
             </Grid>
+          </Grid>
+        </Section>
 
         {/* ================= PRICING ================= */}
         <Section title="Pricing & MOQ">
@@ -219,47 +216,11 @@ const filteredSubcategories = useMemo(() => {
               <FormControlLabel
                 control={
                   <Switch
-                    checked={product.isDepreciating || false}
-                    onChange={e =>
-                      setProduct({
-                        ...product,
-                        isDepreciating: e.target.checked,
-                      })
-                    }
-                  />
-                }
-                label="Depreciating"
-              />
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={product.requiresB2BVerification || false}
-                    onChange={e =>
-                      setProduct({
-                        ...product,
-                        requiresB2BVerification: e.target.checked,
-                      })
-                    }
-                  />
-                }
-                label="B2B Verification"
-              />
-            </Grid>
-
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Switch
                     checked={product.status === "active"}
                     onChange={e =>
                       setProduct({
                         ...product,
-                        status: e.target.checked
-                          ? "active"
-                          : "inactive",
+                        status: e.target.checked ? "active" : "inactive",
                       })
                     }
                   />
