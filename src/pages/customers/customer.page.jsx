@@ -11,6 +11,8 @@ import {
   TextField,
 } from "@mui/material";
 import SellerTable from "../../components/buyer/buyerTable";
+import BuyerTable from "../../components/buyer/buyerTable";
+
 
 const SellerPage = () => {
   return (
