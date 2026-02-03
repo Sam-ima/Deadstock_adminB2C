@@ -61,11 +61,11 @@ const ViewProductDialog = ({
               </Typography>
 
               <Grid container spacing={1}>
-                <Info label="Slug" value={selectedProduct.slug || "N/A"} mono />
-                <Info
+                {/* <Info label="Slug" value={selectedProduct.slug || "N/A"} mono /> */}
+                {/* <Info
                   label="Category"
                   value={category ? `${category.icon ?? ""} ${category.name}` : "Unknown"}
-                />
+                /> */}
                 <Info
                   label="Subcategory"
                   value={subcategory?.name || "Unknown"}
