@@ -3,11 +3,11 @@ import {
   TableRow,
   TableCell,
   Typography,
-  Box,
   Chip,
   IconButton,
   Tooltip,
 } from "@mui/material";
+
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -16,7 +16,7 @@ import CommonTable from "../../components/Table/common_table";
 import { formatDate } from "../products/product_utils";
 
 const OrderTable = ({
-  orders,
+  orders = [],
   page,
   rowsPerPage,
   handleChangePage,
@@ -25,9 +25,14 @@ const OrderTable = ({
   handleEditOrder,
   handleDeleteOrder,
 }) => {
+  // ✅ Pagination handled here
+  const paginatedOrders = orders.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   const columns = [
     { id: "sn", label: "#", width: "5%" },
-    // { id: "orderId", label: "Order ID", width: "20%" },
     { id: "customer", label: "Customer", width: "15%" },
     { id: "location", label: "Location", width: "15%" },
     { id: "items", label: "Items", width: "8%" },
@@ -40,14 +45,10 @@ const OrderTable = ({
 
   const renderRow = (order, index) => (
     <TableRow key={order.id} hover>
+      {/* Serial Number */}
       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
 
-      {/* <TableCell>
-        <Typography variant="body2" fontWeight="medium" noWrap>
-          {order.id}
-        </Typography>
-      </TableCell> */}
-
+      {/* Customer */}
       <TableCell>
         <Typography fontWeight="medium">
           {order.deliveryDetails?.fullName}
@@ -57,6 +58,7 @@ const OrderTable = ({
         </Typography>
       </TableCell>
 
+      {/* Location */}
       <TableCell>
         <Typography variant="body2">
           {order.deliveryDetails?.city}
@@ -66,20 +68,32 @@ const OrderTable = ({
         </Typography>
       </TableCell>
 
+      {/* Items */}
       <TableCell align="center">
-        <Chip label={order.items?.length || 0} size="small" color="info" />
+        <Chip
+          label={order.items?.length || 0}
+          size="small"
+          color="info"
+        />
       </TableCell>
 
+      {/* Total */}
       <TableCell>
         <Typography fontWeight="medium">
           Rs {order.totalAmount}
         </Typography>
       </TableCell>
 
+      {/* Payment Method */}
       <TableCell>
-        <Chip label={order.paymentMethod} size="small" color="secondary" />
+        <Chip
+          label={order.paymentMethod}
+          size="small"
+          color="secondary"
+        />
       </TableCell>
 
+      {/* Payment Status */}
       <TableCell>
         <Chip
           label={order.paymentStatus}
@@ -94,13 +108,14 @@ const OrderTable = ({
         />
       </TableCell>
 
+      {/* Created Date */}
       <TableCell>
         <Typography variant="body2">
           {formatDate(order.createdAt)}
         </Typography>
       </TableCell>
 
-      {/* ACTIONS */}
+      {/* Actions */}
       <TableCell>
         <Tooltip title="View Order">
           <IconButton
@@ -138,7 +153,7 @@ const OrderTable = ({
   return (
     <CommonTable
       columns={columns}
-      data={orders}
+      data={paginatedOrders}
       page={page}
       rowsPerPage={rowsPerPage}
       onPageChange={handleChangePage}
