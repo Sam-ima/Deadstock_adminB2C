@@ -10,13 +10,13 @@ import LogoutIcon from "@mui/icons-material/Logout";
 
 export const NAVIGATION = [
   { segment: "dashboard", title: "Dashboard", icon: <DashboardIcon /> },
-  { segment: "sellers", title: "Sellers", icon: <Inventory2Icon /> },
-  { segment: "buyers", title: "Buyers", icon: <AccountCircleIcon /> },
-  { segment: "products", title: "Products", icon: <ProductionQuantityLimitsIcon /> },
-   { segment: "orders", title: "Orders", icon: <ShoppingCartIcon /> },
-  { segment: "seller-settlement", title: "Seller Settlement", icon: <AccountBalanceWalletIcon/> },
+  { segment: "/dashboard/sellers", title: "Sellers", icon: <Inventory2Icon /> },
+  { segment: "/dashboard/buyers", title: "Buyers", icon: <AccountCircleIcon /> },
+  { segment: "/dashboard/products", title: "Products", icon: <ProductionQuantityLimitsIcon /> },
+   { segment: "/dashboard/orders", title: "Orders", icon: <ShoppingCartIcon /> },
+  { segment: "/dashboard/seller-settlement", title: "Seller Settlement", icon: <AccountBalanceWalletIcon/> },
   // { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
-  { segment: "reviews", title: "Reviews", icon: <VisibilityIcon /> },
+  { segment: "/dashboard/reviews", title: "Reviews", icon: <VisibilityIcon /> },
   { kind: "divider" },
   { segment: "logout", title: "Logout", icon: <LogoutIcon /> },
 ];

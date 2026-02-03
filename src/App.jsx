@@ -15,6 +15,15 @@ import "react-toastify/dist/ReactToastify.css";
 /* Lazy Loaded Components */
 import LoginForm from "./dashboard/login/login_form";
 import AdminDashboardPage from "./pages/admin_dashboard.page";
+// import DashboardContent from "./dashboard/dashboard_content";
+// import ProductsPage from "./pages/products/products_page";
+// import OrdersPage from "./pages/orders/order_page";
+// import SellersPage from "./pages/sellers/seller.page";
+// import CustomersPage from "./pages/customers/customer.page";
+// import ReviewPage from "./pages/reviews/review.page";
+/* Uncomment below to lazy load more pages */
+// import RedeemSchemeTable from "./pages/redeemScheme/RedeemSchemeTable";
+// import ReviewsTable from "./pages/reviews/ReviewsTable";
 // const OwnerTable = lazy(() => import("./pages/owner/owner/OwnerTable"));
 // const CustomerTable = lazy(() => import("./pages/customer/CustomerTable"));
 // const BookingTable = lazy(() => import("./pages/booking/BookingTable"));
@@ -24,9 +33,15 @@ import AdminDashboardPage from "./pages/admin_dashboard.page";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route>
-        <Route path="/" element={<LoginForm />} />
-        <Route path="/dashboard" element={<AdminDashboardPage />} />
+      <Route path="/">
+      <Route index element={<LoginForm />} />
+      <Route path="dashboard" element={<AdminDashboardPage />} />
+         {/* <Route index element={<DashboardContent />} />
+        <Route path="products" element={<ProductsPage />} />
+        <Route path="orders" element={<OrdersPage />} />
+        <Route path="sellers" element={<SellersPage />} />
+        <Route path="buyers" element={<CustomersPage />} />
+        <Route path="reviews" element={<ReviewPage />} /> */}
         {/* <Route path="/owner" element={<OwnerTable />} />
         <Route path="/customer" element={<CustomerTable />} />
         <Route path="/booking" element={<BookingTable />} />

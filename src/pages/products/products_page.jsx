@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+
 
 import ProductTable from "./products_table";
 import ProductFilters from "./products_filters";
@@ -16,6 +18,8 @@ import {
 } from "../../store/slices/product_slice";
 
 export default function ProductsPage() {
+  const location = useLocation();
+
   const dispatch = useDispatch();
 
   const { products, categories, subcategories, loading } = useSelector(
@@ -25,7 +29,9 @@ export default function ProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
-  const [tabValue, setTabValue] = useState(0);
+  const [tabValue, setTabValue] = useState(
+  location.state?.tabValue ?? 0
+);;
 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
