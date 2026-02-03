@@ -88,15 +88,6 @@ const EditProductDialog = ({
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Slug"
-                fullWidth
-                value={product.slug || ""}
-                onChange={handleChange("slug")}
-              />
-            </Grid>
-
             {/* CATEGORY */}
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
@@ -147,17 +138,6 @@ const EditProductDialog = ({
                 rows={3}
                 value={product.description || ""}
                 onChange={handleChange("description")}
-              />
-            </Grid>
-
-            {/* COLOR */}
-            <Grid item xs={12} md={6}>
-              <TextField
-                label="Color (Hex Code)"
-                fullWidth
-                placeholder="#3F51B5"
-                value={product.color || ""}
-                onChange={handleChange("color")}
               />
             </Grid>
           </Grid>

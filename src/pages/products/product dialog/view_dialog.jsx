@@ -10,6 +10,7 @@ import {
   Paper,
   Grid,
   Box,
+  Divider,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { formatPrice, formatDate } from "../product_utils";
@@ -24,92 +25,93 @@ const ViewProductDialog = ({
 }) => {
   if (!open || !selectedProduct) return null;
 
-  const category = categories.find(
-    (c) => c.id === selectedProduct.categoryId
-  );
-
-  const subcategory = subcategories.find(
-    (s) => s.id === selectedProduct.subcategoryId
-  );
-
-  const stockValue =
-    selectedProduct.availableStock ??
-    selectedProduct.stock ??
-    0;
+  const category = categories.find(c => c.id === selectedProduct.categoryId);
+  const subcategory = subcategories.find(s => s.id === selectedProduct.subcategoryId);
+  const stockValue = selectedProduct.availableStock ?? selectedProduct.stock ?? 0;
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Typography variant="h5">{selectedProduct.name}</Typography>
+    <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth>
+      {/* HEADER */}
+      <DialogTitle
+        sx={{
+          background: "linear-gradient(135deg, #1976d2, #42a5f5)",
+          color: "#fff",
+          borderRadius: "8px 8px 0 0",
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" fontWeight={600}>
+            {selectedProduct.name}
+          </Typography>
           <Chip
             label={selectedProduct.status || "active"}
             color={selectedProduct.status === "active" ? "success" : "default"}
             size="small"
+            sx={{ fontWeight: 600 }}
           />
         </Box>
       </DialogTitle>
 
-      <DialogContent dividers>
+      <DialogContent dividers sx={{ backgroundColor: "#f9f9f9", py: 3 }}>
         <Grid container spacing={3}>
           {/* LEFT COLUMN */}
           <Grid item xs={12} md={6}>
             {/* BASIC INFO */}
-            <Paper sx={{ p: 2, mb: 2 }}>
-              <Typography fontWeight="bold" gutterBottom color="primary">
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": { boxShadow: 6 },
+              }}
+            >
+              <Typography fontWeight={700} color="primary" mb={2}>
                 Basic Information
               </Typography>
-
+              <Divider sx={{ mb: 2 }} />
               <Grid container spacing={1}>
-                {/* <Info label="Slug" value={selectedProduct.slug || "N/A"} mono /> */}
-                {/* <Info
-                  label="Category"
-                  value={category ? `${category.icon ?? ""} ${category.name}` : "Unknown"}
-                /> */}
-                <Info
-                  label="Subcategory"
-                  value={subcategory?.name || "Unknown"}
-                />
-                <Info
-                  label="Created"
-                  value={formatDate?.(selectedProduct.createdAt) || "-"}
-                />
-                <Info
-                  label="Updated"
-                  value={formatDate?.(selectedProduct.updatedAt) || "-"}
-                />
+                <Info label="Category" value={category?.name || "Unknown"} />
+                <Info label="Subcategory" value={subcategory?.name || "Unknown"} />
+                <Info label="Created" value={formatDate?.(selectedProduct.createdAt) || "-"} />
+                <Info label="Updated" value={formatDate?.(selectedProduct.updatedAt) || "-"} />
               </Grid>
             </Paper>
 
-            {/* PRICING */}
-            <Paper sx={{ p: 2, mb: 2 }}>
-              <Typography fontWeight="bold" gutterBottom color="primary">
+            {/* PRICING & STOCK */}
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": { boxShadow: 6 },
+              }}
+            >
+              <Typography fontWeight={700} color="primary" mb={2}>
                 Pricing & Stock
               </Typography>
-
+              <Divider sx={{ mb: 2 }} />
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Typography color="text.secondary">Base Price</Typography>
-                  <Typography variant="h6">
+                  <Typography variant="h6" fontWeight={500}>
                     Rs {formatPrice?.(selectedProduct.basePrice) ?? selectedProduct.basePrice}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={6}>
                   <Typography color="text.secondary">Current Price</Typography>
-                  <Typography variant="h6">
-                    Rs{" "}
-                    {formatPrice?.(
-                      selectedProduct.currentPrice ?? selectedProduct.basePrice
-                    )}
+                  <Typography variant="h6" fontWeight={500}>
+                    Rs {formatPrice?.(selectedProduct.currentPrice ?? selectedProduct.basePrice)}
                   </Typography>
                 </Grid>
 
                 <Grid item xs={6}>
                   <Typography color="text.secondary">Floor Price</Typography>
-                  <Typography>
-                    Rs {formatPrice?.(selectedProduct.floorPrice ?? 0)}
-                  </Typography>
+                  <Typography>Rs {formatPrice?.(selectedProduct.floorPrice ?? 0)}</Typography>
                 </Grid>
 
                 <Grid item xs={6}>
@@ -117,12 +119,9 @@ const ViewProductDialog = ({
                   <Chip
                     label={stockValue}
                     color={
-                      stockValue > 10
-                        ? "success"
-                        : stockValue > 0
-                        ? "warning"
-                        : "error"
+                      stockValue > 10 ? "success" : stockValue > 0 ? "warning" : "error"
                     }
+                    sx={{ fontWeight: 500 }}
                   />
                 </Grid>
 
@@ -138,33 +137,28 @@ const ViewProductDialog = ({
               </Grid>
             </Paper>
 
-            {/* SALES */}
-            <Paper sx={{ p: 2 }}>
-              <Typography fontWeight="bold" gutterBottom color="primary">
+            {/* SALES INFO */}
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": { boxShadow: 6 },
+              }}
+            >
+              <Typography fontWeight={700} color="primary" mb={2}>
                 Sales Information
               </Typography>
-
-              <Grid container spacing={1}>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
                 <InfoChip label="Seller Type" value={selectedProduct.sellerType || "B2C"} />
                 <InfoChip label="Sale Type" value={selectedProduct.saleType || "direct"} />
-
                 <Grid item xs={6}>
                   <Typography color="text.secondary">Rating</Typography>
                   <Typography>
                     {selectedProduct.rating ?? 0} ({selectedProduct.reviews ?? 0} reviews)
                   </Typography>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Typography color="text.secondary">B2B Verification</Typography>
-                  <Chip
-                    label={
-                      selectedProduct.requiresB2BVerification
-                        ? "Required"
-                        : "Not Required"
-                    }
-                    size="small"
-                  />
                 </Grid>
               </Grid>
             </Paper>
@@ -172,21 +166,41 @@ const ViewProductDialog = ({
 
           {/* RIGHT COLUMN */}
           <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2, mb: 2 }}>
-              <Typography fontWeight="bold" gutterBottom color="primary">
+            {/* DESCRIPTION */}
+            <Paper
+              elevation={4}
+              sx={{
+                p: 3,
+                mb: 3,
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": { boxShadow: 6 },
+              }}
+            >
+              <Typography fontWeight={700} color="primary" mb={2}>
                 Description
               </Typography>
-              <Typography>
-                {selectedProduct.description || "No description available."}
-              </Typography>
+              <Divider sx={{ mb: 1 }} />
+              <Typography>{selectedProduct.description || "No description available."}</Typography>
             </Paper>
 
-            {Array.isArray(selectedProduct.features) && (
-              <Paper sx={{ p: 2, mb: 2 }}>
-                <Typography fontWeight="bold" gutterBottom color="primary">
+            {/* FEATURES */}
+            {Array.isArray(selectedProduct.features) && selectedProduct.features.length > 0 && (
+              <Paper
+                elevation={4}
+                sx={{
+                  p: 3,
+                  mb: 3,
+                  borderRadius: 3,
+                  transition: "0.3s",
+                  "&:hover": { boxShadow: 6 },
+                }}
+              >
+                <Typography fontWeight={700} color="primary" mb={2}>
                   Features
                 </Typography>
-                <ul>
+                <Divider sx={{ mb: 1 }} />
+                <ul style={{ paddingLeft: 20 }}>
                   {selectedProduct.features.map((f, i) => (
                     <li key={i}>{f}</li>
                   ))}
@@ -194,11 +208,21 @@ const ViewProductDialog = ({
               </Paper>
             )}
 
-            {selectedProduct.specifications && (
-              <Paper sx={{ p: 2 }}>
-                <Typography fontWeight="bold" gutterBottom color="primary">
+            {/* SPECIFICATIONS */}
+            {selectedProduct.specifications && Object.keys(selectedProduct.specifications).length > 0 && (
+              <Paper
+                elevation={4}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  transition: "0.3s",
+                  "&:hover": { boxShadow: 6 },
+                }}
+              >
+                <Typography fontWeight={700} color="primary" mb={2}>
                   Specifications
                 </Typography>
+                <Divider sx={{ mb: 1 }} />
                 <Grid container spacing={1}>
                   {Object.entries(selectedProduct.specifications).map(([k, v]) => (
                     <React.Fragment key={k}>
@@ -219,7 +243,7 @@ const ViewProductDialog = ({
         </Grid>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={handleClose}>Close</Button>
         <Button
           variant="contained"
@@ -236,16 +260,14 @@ const ViewProductDialog = ({
   );
 };
 
-/* Small helpers for layout */
-const Info = ({ label, value, mono }) => (
+/* Helper components */
+const Info = ({ label, value }) => (
   <>
     <Grid item xs={4}>
       <Typography color="text.secondary">{label}:</Typography>
     </Grid>
     <Grid item xs={8}>
-      <Typography sx={mono ? { fontFamily: "monospace" } : {}}>
-        {value}
-      </Typography>
+      <Typography>{value}</Typography>
     </Grid>
   </>
 );
@@ -253,7 +275,7 @@ const Info = ({ label, value, mono }) => (
 const InfoChip = ({ label, value }) => (
   <Grid item xs={6}>
     <Typography color="text.secondary">{label}</Typography>
-    <Chip label={value} size="small" />
+    <Chip label={value} size="small" sx={{ fontWeight: 500 }} />
   </Grid>
 );
 
