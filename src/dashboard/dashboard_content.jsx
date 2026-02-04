@@ -33,6 +33,8 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 import { fetchAllData } from "../store/slices/product_slice";
 import { fetchOrders } from "../store/slices/order_slice";
+import { fetchCommissions } from "../store/slices/commission_slice";
+
 
 const DashboardContent = ({ navigate }) => {
   // const navigate = useNavigate();
@@ -44,11 +46,20 @@ const DashboardContent = ({ navigate }) => {
      // Fetch products and orders from Redux
   const { products } = useSelector((state) => state.product);
   const { list: orders } = useSelector((state) => state.orders);
+  const { list: commissions } = useSelector(
+  (state) => state.commission
+);
+
+const totalCommission = commissions.reduce(
+  (sum, c) => sum + (c.commissionAmount || 0),
+  0
+);
 
   // Fetch data on mount
   useEffect(() => {
     dispatch(fetchAllData());
     dispatch(fetchOrders());
+    dispatch(fetchCommissions());
   }, [dispatch]);
 
 
@@ -95,10 +106,12 @@ const DashboardContent = ({ navigate }) => {
 
 {
   title: "Total Commission",
-  // value: `₹${totalCommission}`, 
+  value: `₹${totalCommission}`,
   icon: <CommissionIcon />,
   color: theme.palette.success.dark,
+  onClick: () => navigate("/seller-settlement"),
 },
+
 
 
     // {
@@ -121,6 +134,7 @@ const DashboardContent = ({ navigate }) => {
       // value: dashboardData.lowStock,
       icon: <AccountBalanceWalletIcon /> ,
       color: theme.palette.warning.main,
+      onClick: () => navigate("/seller-settlement"),
     },
   ];
 
