@@ -24,6 +24,7 @@ import {
   Store as SellersIcon,
   Paid as CommissionIcon,
 } from "@mui/icons-material";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 
@@ -54,6 +55,11 @@ const totalCommission = commissions.reduce(
   (sum, c) => sum + (c.commissionAmount || 0),
   0
 );
+const totalAmountToSeller = commissions.reduce(
+  (sum, c) => sum + (c.amountToSeller || 0),
+  0
+);
+
 
   // Fetch data on mount
   useEffect(() => {
@@ -105,15 +111,12 @@ const totalCommission = commissions.reduce(
 },
 
 {
-  title: "Total Commission",
-  value: `₹${totalCommission}`,
-  icon: <CommissionIcon />,
-  color: theme.palette.success.dark,
+  title: "Amount to Seller",
+  value: `₹${totalAmountToSeller.toLocaleString()}`,
+  icon: <AttachMoneyIcon />, // changed icon
+  color: theme.palette.warning.main,
   onClick: () => navigate("/seller-settlement"),
 },
-
-
-
     // {
     //   title: "Hidden Products",
     //   // value: dashboardData.hiddenProducts,
