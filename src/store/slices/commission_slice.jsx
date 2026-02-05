@@ -9,22 +9,37 @@ import {
 import { db } from "../../components/config/firebase";
 
 /**
- * Fetch all commission transactions
+ * 🔹 Fetch all commission transactions
  */
 export const fetchCommissions = createAsyncThunk(
   "commission/fetchCommissions",
   async () => {
     const snapshot = await getDocs(collection(db, "commissions"));
 
-    return snapshot.docs.map((docSnap) => ({
-      id: docSnap.id,
-      ...docSnap.data(),
-    }));
+    const data = snapshot.docs.map((docSnap) => {
+      const docData = docSnap.data();
+
+      return {
+        id: docSnap.id,
+        ...docData,
+
+        // ✅ convert Firestore Timestamp → JS Date (serializable)
+        createdAt: docData.createdAt?.toDate
+          ? docData.createdAt.toDate()
+          : null,
+        settledAt: docData.settledAt?.toDate
+          ? docData.settledAt.toDate()
+          : null,
+      };
+    });
+
+    console.log("🔥 Commissions fetched from Firestore:", data);
+    return data;
   }
 );
 
 /**
- * Settle commission (Pay Seller)
+ * 🔹 Settle commission (Pay Seller)
  */
 export const settleCommission = createAsyncThunk(
   "commission/settleCommission",
@@ -49,6 +64,7 @@ const commissionSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch
       .addCase(fetchCommissions.pending, (state) => {
         state.loading = true;
       })
@@ -56,10 +72,13 @@ const commissionSlice = createSlice({
         state.loading = false;
         state.list = action.payload;
       })
+
+      // Settle
       .addCase(settleCommission.fulfilled, (state, action) => {
         const commission = state.list.find(
           (c) => c.id === action.payload
         );
+
         if (commission) {
           commission.status = "settled";
           commission.settledAt = new Date();
@@ -69,3 +88,4 @@ const commissionSlice = createSlice({
 });
 
 export default commissionSlice.reducer;
+  

@@ -1,5 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+
 import {
   fetchCommissions,
   settleCommission,
@@ -9,31 +10,107 @@ import { fetchSellers } from "../../store/slices/seller_slice";
 import {
   Box,
   Typography,
-  Paper,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Button,
   Chip,
+  TableRow,
+  TableCell,
 } from "@mui/material";
+
+import CommonTable from "../../components/Table/common_table";
 
 const SellerSettlementPage = () => {
   const dispatch = useDispatch();
 
-  const { list: commissions } = useSelector(
-    (state) => state.commission
+  // Redux state
+  const commissions = useSelector(
+    (state) => state.commission?.list || []
   );
-  const { list: sellers } = useSelector((state) => state.sellers);
+  const loading = useSelector(
+    (state) => state.commission?.loading
+  );
+  const sellers = useSelector(
+    (state) => state.sellers?.list || []
+  );
 
+  // Pagination state
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Fetch data
   useEffect(() => {
-    dispatch(fetchCommissions());
-    dispatch(fetchSellers());
+    if (commissions.length === 0) {
+      dispatch(fetchCommissions());
+    }
+    if (sellers.length === 0) {
+      dispatch(fetchSellers());
+    }
   }, [dispatch]);
 
-  const getSellerName = (sellerId) =>
-    sellers.find((s) => s.id === sellerId)?.name || "Unknown Seller";
+  // Helpers
+  const getSellerName = (sellerId) => {
+    const seller = sellers.find((s) => s.id === sellerId);
+    return seller?.name || "Unknown Seller";
+  };
+
+  // Table columns
+  const columns = [
+    { id: "product", label: "Product" },
+    { id: "seller", label: "Seller" },
+    { id: "subtotal", label: "Subtotal" },
+    { id: "commission", label: "Commission" },
+    { id: "amount", label: "Amount to Seller" },
+    { id: "status", label: "Status" },
+    { id: "action", label: "Action", width: 120 },
+  ];
+
+  // Paginated data
+  const paginatedData = commissions.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  // Row renderer
+  const renderRow = (row) => (
+    <TableRow key={row.id} hover>
+      <TableCell>{row.productName}</TableCell>
+
+      <TableCell>{getSellerName(row.sellerId)}</TableCell>
+
+      <TableCell>₹{row.subtotal}</TableCell>
+
+      <TableCell>
+        ₹{row.commissionAmount} (
+        {(row.commissionRate * 100).toFixed(0)}%)
+      </TableCell>
+
+      <TableCell>
+        <strong>₹{row.amountToSeller}</strong>
+      </TableCell>
+
+      <TableCell>
+        <Chip
+          label={row.status}
+          size="small"
+          color={row.status === "pending" ? "warning" : "success"}
+        />
+      </TableCell>
+
+      <TableCell align="center">
+        {row.status === "pending" ? (
+          <Button
+            size="small"
+            variant="contained"
+            color="success"
+            onClick={() => dispatch(settleCommission(row.id))}
+          >
+            Pay
+          </Button>
+        ) : (
+          <Chip label="Paid" size="small" />
+        )}
+      </TableCell>
+    </TableRow>
+  );
 
   return (
     <Box p={3}>
@@ -41,62 +118,21 @@ const SellerSettlementPage = () => {
         Seller Settlement
       </Typography>
 
-      <Paper elevation={4}>
-        <Table>
-          <TableHead sx={{ bgcolor: "#f5f5f5" }}>
-            <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell>Seller</TableCell>
-              <TableCell>Subtotal</TableCell>
-              <TableCell>Commission</TableCell>
-              <TableCell>Payable</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="center">Action</TableCell>
-            </TableRow>
-          </TableHead>
-
-          <TableBody>
-            {commissions.map((row) => (
-              <TableRow key={row.id} hover>
-                <TableCell>{row.productName}</TableCell>
-                <TableCell>{getSellerName(row.sellerId)}</TableCell>
-                <TableCell>₹{row.subtotal}</TableCell>
-                <TableCell>
-                  ₹{row.commissionAmount} ({row.commissionRate * 100}%)
-                </TableCell>
-                <TableCell>₹{row.amountToSeller}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={row.status}
-                    color={
-                      row.status === "pending"
-                        ? "warning"
-                        : "success"
-                    }
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell align="center">
-                  {row.status === "pending" ? (
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="success"
-                      onClick={() =>
-                        dispatch(settleCommission(row.id))
-                      }
-                    >
-                      Pay
-                    </Button>
-                  ) : (
-                    <Chip label="Paid" size="small" />
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Paper>
+      <CommonTable
+        columns={columns}
+        data={paginatedData}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(_, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        emptyMessage={
+          loading ? "Loading settlements..." : "No commission records found"
+        }
+        renderRow={renderRow}
+      />
     </Box>
   );
 };
