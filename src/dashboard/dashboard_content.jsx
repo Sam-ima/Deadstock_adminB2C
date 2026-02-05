@@ -47,18 +47,23 @@ const DashboardContent = ({ navigate }) => {
      // Fetch products and orders from Redux
   const { products } = useSelector((state) => state.product);
   const { list: orders } = useSelector((state) => state.orders);
-  const { list: commissions } = useSelector(
-  (state) => state.commission
+ const commissions = useSelector(
+  (state) => state.commission?.list || []
 );
 
 const totalCommission = commissions.reduce(
-  (sum, c) => sum + (c.commissionAmount || 0),
+  (sum, c) => sum + Number(c.commissionAmount || 0),
   0
 );
+
 const totalAmountToSeller = commissions.reduce(
-  (sum, c) => sum + (c.amountToSeller || 0),
+  (sum, c) => sum + Number(c.amountToSeller || 0),
   0
 );
+const categoriesCount = useSelector(
+  (state) => state.product?.categories?.length || 0
+);
+
 
 
   // Fetch data on mount
@@ -125,7 +130,7 @@ const totalAmountToSeller = commissions.reduce(
     // },
     {
       title: "Categories",
-      value: useSelector((state) => state.product.categories.length),
+      value: categoriesCount,
       // value: dashboardData.categories,
       icon: <CategoryIcon />,
       color: theme.palette.info.main,
