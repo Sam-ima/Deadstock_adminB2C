@@ -5,6 +5,7 @@ import productReducer from "./slices/product_slice";
 // import commissionReducer from "./slices/commission_slice";
 import sellerSettlementReducer from "./slices/sellerSettlementSlice";
 import sellerReducer from "./slices/seller_slice";
+import buyerReducer from "./slices/buyer_slice";
 
 const store = configureStore({
   reducer: {
@@ -12,8 +13,9 @@ const store = configureStore({
     product: productReducer,
     // commission: commissionReducer,
     sellers: sellerReducer,
-   sellerSettlement: sellerSettlementReducer
-,
+    sellerSettlement: sellerSettlementReducer,
+    buyers: buyerReducer,
+
   },
 });
 
