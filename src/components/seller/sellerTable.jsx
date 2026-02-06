@@ -106,9 +106,9 @@ const SellerTable = () => {
 
                   <TableCell>{seller.fullName}</TableCell>
                   <TableCell>{seller.email}</TableCell>
-                  <TableCell>{seller.address}</TableCell>
-                  <TableCell>{seller.city}</TableCell>
-                  <TableCell>{seller.country}</TableCell>
+                  <TableCell>{seller.business?.address || "-"}</TableCell>
+                  <TableCell>{seller.business?.city || "-"}</TableCell>
+                  <TableCell>{seller.business?.country || "-"}</TableCell>
                   <TableCell>{seller.panVat}</TableCell>
                   <TableCell>{seller.phone}</TableCell>
                   <TableCell>{seller.shopName}</TableCell>
