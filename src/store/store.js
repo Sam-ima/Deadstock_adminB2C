@@ -12,7 +12,8 @@ const store = configureStore({
     product: productReducer,
     // commission: commissionReducer,
     sellers: sellerReducer,
-    sellerSettlement: sellerSettlementReducer,
+   sellerSettlement: sellerSettlementReducer
+,
   },
 });
 

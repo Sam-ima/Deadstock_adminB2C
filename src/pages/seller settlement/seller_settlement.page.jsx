@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import {
   Table,
@@ -23,27 +22,29 @@ import {
 
 const SellerSettlementTable = () => {
   const dispatch = useDispatch();
-  const { data, loading, error } = useSelector(
-    (state) => state.sellerSettlement
+
+  // ✅ CORRECT STATE SELECTION
+  const { settlements, loading, error } = useSelector(
+    state => state.sellerSettlement
   );
 
+  /* Fetch data */
   useEffect(() => {
-    console.log("🔄 Dispatching fetchSellerSettlements");
     dispatch(fetchSellerSettlements());
   }, [dispatch]);
 
+  /* Debug */
   useEffect(() => {
-    console.log("📊 Current Redux data:", data);
-    console.log("📊 Data length:", data.length);
-    if (data.length > 0) {
-      console.log("📊 First item:", data[0]);
-    }
-  }, [data]);
+    console.log("📊 Redux settlements:", settlements);
+    console.log("📊 Total records:", settlements.length);
+  }, [settlements]);
 
+  /* Loading */
   if (loading) {
     return <CircularProgress sx={{ mt: 5 }} />;
   }
 
+  /* Error */
   if (error) {
     return (
       <Typography color="error" sx={{ mt: 5 }}>
@@ -55,9 +56,9 @@ const SellerSettlementTable = () => {
   return (
     <>
       <Typography variant="h6" sx={{ mt: 3 }}>
-        Total Records: {data.length}
+        Total Records: {settlements.length}
       </Typography>
-      
+
       <TableContainer component={Paper} sx={{ mt: 4 }}>
         <Table>
           <TableHead>
@@ -76,7 +77,7 @@ const SellerSettlementTable = () => {
           </TableHead>
 
           <TableBody>
-            {data.length === 0 && (
+            {settlements.length === 0 && (
               <TableRow>
                 <TableCell colSpan={10} align="center">
                   No settlements found
@@ -84,14 +85,14 @@ const SellerSettlementTable = () => {
               </TableRow>
             )}
 
-            {data.map((row) => (
+            {settlements.map(row => (
               <TableRow key={row.id}>
                 <TableCell>{row.productName || "N/A"}</TableCell>
-                <TableCell>{row.sellerId?.substring(0, 8)}...</TableCell>
-                <TableCell>{row.buyerId?.substring(0, 8)}...</TableCell>
-                <TableCell>Rs. {row.subtotal || 0}</TableCell>
-                <TableCell>Rs. {row.commissionAmount || 0}</TableCell>
-                <TableCell>Rs. {row.amountToSeller || 0}</TableCell>
+                <TableCell>{row.sellerId?.slice(0, 8)}...</TableCell>
+                <TableCell>{row.buyerId?.slice(0, 8)}...</TableCell>
+                <TableCell>Rs. {row.subtotal ?? 0}</TableCell>
+                <TableCell>Rs. {row.commissionAmount ?? 0}</TableCell>
+                <TableCell>Rs. {row.amountToSeller ?? 0}</TableCell>
                 <TableCell>{row.paymentMethod || "N/A"}</TableCell>
 
                 <TableCell>
@@ -100,9 +101,9 @@ const SellerSettlementTable = () => {
                     color={row.status === "settled" ? "success" : "warning"}
                   />
                 </TableCell>
-                
+
                 <TableCell>
-                  {row.createdAt 
+                  {row.createdAt
                     ? new Date(row.createdAt).toLocaleDateString()
                     : "N/A"}
                 </TableCell>
@@ -114,7 +115,9 @@ const SellerSettlementTable = () => {
                         size="small"
                         variant="contained"
                         color="success"
-                        onClick={() => dispatch(settleSellerPayment(row.id))}
+                        onClick={() =>
+                          dispatch(settleSellerPayment(row.id))
+                        }
                       >
                         Settle
                       </Button>
@@ -124,7 +127,9 @@ const SellerSettlementTable = () => {
                       size="small"
                       variant="outlined"
                       color="error"
-                      onClick={() => dispatch(deleteSellerSettlement(row.id))}
+                      onClick={() =>
+                        dispatch(deleteSellerSettlement(row.id))
+                      }
                     >
                       Delete
                     </Button>
