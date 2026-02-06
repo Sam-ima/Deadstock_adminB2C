@@ -22,10 +22,11 @@ import {
   ShoppingCart as OrdersIcon, 
   People as BuyersIcon,
   Store as SellersIcon,
-  Paid as CommissionIcon,
+  Paid as PaidIcon,
 } from "@mui/icons-material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 
 
 // temporary frontend data (API simulation)
@@ -34,8 +35,11 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 
 import { fetchAllData } from "../store/slices/product_slice";
 import { fetchOrders } from "../store/slices/order_slice";
-import { fetchCommissions } from "../store/slices/commission_slice";
+import { fetchSellerSettlements } from "../store/slices/sellerSettlementSlice";
 import { fetchSellers } from "../store/slices/seller_slice";
+import { fetchBuyers } from "../store/slices/buyer_slice";
+// import { fetchCommissions } from "../store/slices/commission_slice";
+
 
 
 const DashboardContent = ({ navigate }) => {
@@ -48,22 +52,36 @@ const DashboardContent = ({ navigate }) => {
      // Fetch products and orders from Redux
   const { products } = useSelector((state) => state.product);
   const { list: orders } = useSelector((state) => state.orders);
- const commissions = useSelector(
-  (state) => state.commission?.list || []
+
+//  const commissions = useSelector(
+//   (state) => state.commissions?.list || []
+// );
+
+const sellerSettlements = useSelector(
+  (state) => state.sellerSettlement?.settlements || []
 );
 
-const totalCommission = commissions.reduce(
-  (sum, c) => sum + Number(c.commissionAmount || 0),
+const buyersCount = useSelector(
+  (state) => state.buyers.list.length
+);
+
+const sellersCount = useSelector(
+  (state) => state.sellers.list.length
+);
+
+const totalAmountToSeller = sellerSettlements.reduce(
+  (sum, s) => sum + Number(s.amountToSeller || 0),
   0
 );
 
-const totalAmountToSeller = commissions.reduce(
-  (sum, c) => sum + Number(c.amountToSeller || 0),
-  0
-);
 const categoriesCount = useSelector(
   (state) => state.product?.categories?.length || 0
 );
+const totalCommissionAmount = sellerSettlements.reduce(
+  (sum, s) => sum + Number(s.commissionAmount || 0),
+  0
+);
+
 
 
 
@@ -71,8 +89,10 @@ const categoriesCount = useSelector(
   useEffect(() => {
     dispatch(fetchAllData());
     dispatch(fetchOrders());
-    dispatch(fetchCommissions());
+    // dispatch(fetchCommissions());
+    dispatch(fetchSellerSettlements());
     dispatch(fetchSellers());
+    dispatch(fetchBuyers());
   }, [dispatch]);
 
 
@@ -104,6 +124,7 @@ const categoriesCount = useSelector(
     {
   title: "Total Buyers",
   // value: buyers.length, 
+  value: useSelector((state) => state.buyers.list.length),
   icon: <BuyersIcon/>,
   color: theme.palette.primary.light,
   onClick: () => navigate("/buyers"),
@@ -118,19 +139,28 @@ const categoriesCount = useSelector(
   onClick: () => navigate("/sellers"),
 },
 
-{
-  title: "Amount to Seller",
-  value: `₹${totalAmountToSeller.toLocaleString()}`,
-  icon: <AttachMoneyIcon />, // changed icon
-  color: theme.palette.warning.main,
+/* ✅ COMMISSION AMOUNT */
+  {
+  title: "Commission Amount",
+  value: `₹${totalCommissionAmount.toLocaleString()}`,
+  icon: <CurrencyRupeeIcon />,
+  color: theme.palette.success.main,
   onClick: () => navigate("/seller-settlement"),
 },
+
     // {
     //   title: "Hidden Products",
     //   // value: dashboardData.hiddenProducts,
     //   icon: <HiddenIcon />,
     //   color: theme.palette.error.main,
     // },
+    {
+    title: "Amount to Seller",
+    value: `₹${totalAmountToSeller.toLocaleString()}`,
+    icon: <AttachMoneyIcon />,
+    color: theme.palette.warning.main,
+    onClick: () => navigate("/seller-settlement"),
+  },
     {
       title: "Categories",
       value: categoriesCount,
@@ -139,14 +169,14 @@ const categoriesCount = useSelector(
       color: theme.palette.info.main,
       onClick: () => navigate("/categories"),
     },
-    {
-      title: "Seller Settlement", 
-      //  value: products.filter((p) => (p.stock ?? 0) <= 10).length,
-      // value: dashboardData.lowStock,
-      icon: <AccountBalanceWalletIcon /> ,
-      color: theme.palette.warning.main,
-      onClick: () => navigate("/seller-settlement"),
-    },
+    
+   {
+    title: "Seller Settlement",
+    icon: <AccountBalanceWalletIcon />,
+    color: theme.palette.warning.dark,
+    onClick: () => navigate("/seller-settlement"),
+  },
+
   ];
 
   return (
