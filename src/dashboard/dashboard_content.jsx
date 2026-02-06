@@ -35,6 +35,7 @@ import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import { fetchAllData } from "../store/slices/product_slice";
 import { fetchOrders } from "../store/slices/order_slice";
 import { fetchCommissions } from "../store/slices/commission_slice";
+import { fetchSellers } from "../store/slices/seller_slice";
 
 
 const DashboardContent = ({ navigate }) => {
@@ -71,6 +72,7 @@ const categoriesCount = useSelector(
     dispatch(fetchAllData());
     dispatch(fetchOrders());
     dispatch(fetchCommissions());
+    dispatch(fetchSellers());
   }, [dispatch]);
 
 
@@ -110,6 +112,7 @@ const categoriesCount = useSelector(
 {
   title: "Total Sellers",
   // value: sellers.length, // from Redux later
+  value: useSelector((state) => state.sellers.list.length),
   icon: <SellersIcon />,
   color: theme.palette.info.main,
   onClick: () => navigate("/sellers"),
