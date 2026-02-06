@@ -14,59 +14,69 @@ export const fetchSellerSettlements = createAsyncThunk(
   "sellerSettlement/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      // ✅ CORRECT COLLECTION NAME (PLURAL)
-      const snapshot = await getDocs(
+      console.log("🚀 Fetching settlements + sellers");
+
+      // 1️⃣ Fetch settlements
+      const settlementSnap = await getDocs(
         collection(db, "commission_transactions")
       );
 
-      console.log("🔥 Firestore snapshot size:", snapshot.size);
+      // 2️⃣ Fetch sellers (THIS IS THE FIX)
+      const sellerSnap = await getDocs(collection(db, "sellers"));
 
-      const settlements = snapshot.docs.map(docSnap => {
+      const sellersMap = {};
+      sellerSnap.docs.forEach(doc => {
+        sellersMap[doc.id] = doc.data(); // 🔑 doc.id === sellerId
+      });
+
+      console.log("🗺️ Sellers mapped:", Object.keys(sellersMap));
+
+      // 3️⃣ Merge data
+      const settlements = settlementSnap.docs.map(docSnap => {
         const data = docSnap.data();
+        const seller = sellersMap[data.sellerId];
+
+        console.log("🔗 Mapping:", {
+          settlementId: docSnap.id,
+          sellerId: data.sellerId,
+          sellerFound: !!seller,
+        });
 
         return {
           id: docSnap.id,
 
-          // 🔹 Core fields
-          amountToSeller: data.amountToSeller,
-          commissionAmount: data.commissionAmount,
-          commissionRate: data.commissionRate,
+          // Amounts
           subtotal: data.subtotal,
-          quantity: data.quantity,
+          commissionAmount: data.commissionAmount,
+          amountToSeller: data.amountToSeller,
 
-          // 🔹 Relations
-          sellerId: data.sellerId,
-          buyerId: data.buyerId,
-          orderId: data.orderId,
-          itemId: data.itemId,
-          productId: data.productId,
+          // Product
           productName: data.productName,
-          productPrice: data.productPrice,
 
-          // 🔹 Payment
-          paymentMethod: data.paymentMethod,
-          paymentRefId: data.paymentRefId,
-          paymentStatus: data.paymentStatus,
+          // ✅ Seller info (NOW ALWAYS WORKS)
+          sellerId: data.sellerId,
+          sellerName: seller?.shopName || seller?.fullName || "Unknown Seller",
+          sellerPhone: seller?.phone || "-",
+          sellerEmail: seller?.email || "-",
 
-          // 🔹 Status
+          // Payment
+          paymentMethod: data.paymentMethod || "ESEWA",
           status: data.status,
 
-          // 🔹 Dates (serialized)
+          // Dates
           createdAt: data.createdAt?.toDate
             ? data.createdAt.toDate().toISOString()
             : null,
-
           settledAt: data.settledAt?.toDate
             ? data.settledAt.toDate().toISOString()
             : null,
         };
       });
 
-      console.log("🔥 Firestore settlements:", settlements);
+      console.log("✅ Final settlements:", settlements);
       return settlements;
-
     } catch (error) {
-      console.error("❌ Firestore fetch error:", error);
+      console.error("❌ Error:", error);
       return rejectWithValue(error.message);
     }
   }
@@ -76,13 +86,10 @@ export const fetchSellerSettlements = createAsyncThunk(
 export const settleSellerPayment = createAsyncThunk(
   "sellerSettlement/settle",
   async (id) => {
-    await updateDoc(
-      doc(db, "commission_transactions", id),
-      {
-        status: "settled",
-        settledAt: serverTimestamp(),
-      }
-    );
+    await updateDoc(doc(db, "commission_transactions", id), {
+      status: "settled",
+      settledAt: serverTimestamp(),
+    });
     return id;
   }
 );
@@ -91,9 +98,7 @@ export const settleSellerPayment = createAsyncThunk(
 export const deleteSellerSettlement = createAsyncThunk(
   "sellerSettlement/delete",
   async (id) => {
-    await deleteDoc(
-      doc(db, "commission_transactions", id)
-    );
+    await deleteDoc(doc(db, "commission_transactions", id));
     return id;
   }
 );
@@ -109,33 +114,24 @@ const sellerSettlementSlice = createSlice({
   reducers: {},
   extraReducers: builder => {
     builder
-
-      /* FETCH */
       .addCase(fetchSellerSettlements.pending, state => {
         state.loading = true;
       })
       .addCase(fetchSellerSettlements.fulfilled, (state, action) => {
         state.loading = false;
         state.settlements = action.payload;
-        console.log("🟢 Redux settlements:", action.payload);
       })
       .addCase(fetchSellerSettlements.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-
-      /* SETTLE */
       .addCase(settleSellerPayment.fulfilled, (state, action) => {
-        const row = state.settlements.find(
-          r => r.id === action.payload
-        );
+        const row = state.settlements.find(r => r.id === action.payload);
         if (row) {
           row.status = "settled";
           row.settledAt = new Date().toISOString();
         }
       })
-
-      /* DELETE */
       .addCase(deleteSellerSettlement.fulfilled, (state, action) => {
         state.settlements = state.settlements.filter(
           r => r.id !== action.payload
