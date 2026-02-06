@@ -9,12 +9,15 @@ import {
 } from "firebase/firestore";
 import { db } from "../../components/config/firebase";
 
-/* ================= FETCH ================= */
+/* ================= FETCH SELLER SETTLEMENTS ================= */
 export const fetchSellerSettlements = createAsyncThunk(
-  "sellerSettlement/fetch",
+  "sellerSettlement/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const snapshot = await getDocs(collection(db, "seller_settlements"));
+      // ✅ CORRECT COLLECTION NAME (PLURAL)
+      const snapshot = await getDocs(
+        collection(db, "commission_transactions")
+      );
 
       console.log("🔥 Firestore snapshot size:", snapshot.size);
 
@@ -23,17 +26,43 @@ export const fetchSellerSettlements = createAsyncThunk(
 
         return {
           id: docSnap.id,
-          ...data,
+
+          // 🔹 Core fields
+          amountToSeller: data.amountToSeller,
+          commissionAmount: data.commissionAmount,
+          commissionRate: data.commissionRate,
+          subtotal: data.subtotal,
+          quantity: data.quantity,
+
+          // 🔹 Relations
+          sellerId: data.sellerId,
+          buyerId: data.buyerId,
+          orderId: data.orderId,
+          itemId: data.itemId,
+          productId: data.productId,
+          productName: data.productName,
+          productPrice: data.productPrice,
+
+          // 🔹 Payment
+          paymentMethod: data.paymentMethod,
+          paymentRefId: data.paymentRefId,
+          paymentStatus: data.paymentStatus,
+
+          // 🔹 Status
+          status: data.status,
+
+          // 🔹 Dates (serialized)
           createdAt: data.createdAt?.toDate
             ? data.createdAt.toDate().toISOString()
             : null,
+
           settledAt: data.settledAt?.toDate
             ? data.settledAt.toDate().toISOString()
             : null,
         };
       });
 
-      console.log("🔥 Firestore data:", settlements);
+      console.log("🔥 Firestore settlements:", settlements);
       return settlements;
 
     } catch (error) {
@@ -43,18 +72,17 @@ export const fetchSellerSettlements = createAsyncThunk(
   }
 );
 
-
-/* ================= SETTLE ================= */
+/* ================= SETTLE PAYMENT ================= */
 export const settleSellerPayment = createAsyncThunk(
   "sellerSettlement/settle",
   async (id) => {
-    const ref = doc(db, "seller_settlements", id);
-
-    await updateDoc(ref, {
-      status: "settled",
-      settledAt: serverTimestamp(),
-    });
-
+    await updateDoc(
+      doc(db, "commission_transactions", id),
+      {
+        status: "settled",
+        settledAt: serverTimestamp(),
+      }
+    );
     return id;
   }
 );
@@ -63,40 +91,44 @@ export const settleSellerPayment = createAsyncThunk(
 export const deleteSellerSettlement = createAsyncThunk(
   "sellerSettlement/delete",
   async (id) => {
-    await deleteDoc(doc(db, "seller_settlements", id));
+    await deleteDoc(
+      doc(db, "commission_transactions", id)
+    );
     return id;
   }
 );
 
+/* ================= SLICE ================= */
 const sellerSettlementSlice = createSlice({
   name: "sellerSettlement",
   initialState: {
-    data: [],
+    settlements: [],
     loading: false,
     error: null,
   },
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
 
       /* FETCH */
-      .addCase(fetchSellerSettlements.pending, (state) => {
+      .addCase(fetchSellerSettlements.pending, state => {
         state.loading = true;
       })
       .addCase(fetchSellerSettlements.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
-        console.log("🟢 Redux sellerSettlement state:", action.payload);
-
+        state.settlements = action.payload;
+        console.log("🟢 Redux settlements:", action.payload);
       })
       .addCase(fetchSellerSettlements.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       })
 
       /* SETTLE */
       .addCase(settleSellerPayment.fulfilled, (state, action) => {
-        const row = state.data.find(r => r.id === action.payload);
+        const row = state.settlements.find(
+          r => r.id === action.payload
+        );
         if (row) {
           row.status = "settled";
           row.settledAt = new Date().toISOString();
@@ -105,7 +137,9 @@ const sellerSettlementSlice = createSlice({
 
       /* DELETE */
       .addCase(deleteSellerSettlement.fulfilled, (state, action) => {
-        state.data = state.data.filter(r => r.id !== action.payload);
+        state.settlements = state.settlements.filter(
+          r => r.id !== action.payload
+        );
       });
   },
 });
