@@ -1,147 +1,80 @@
-import React, { useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Chip,
-  Stack,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+import SellerSettlementTable from "./seller_settlement_table";
 import {
   fetchSellerSettlements,
   settleSellerPayment,
   deleteSellerSettlement,
 } from "../../store/slices/sellerSettlementSlice";
 
-const SellerSettlementTable = () => {
+const SellerSettlementPage = () => {
   const dispatch = useDispatch();
-
-  // ✅ CORRECT STATE SELECTION
   const { settlements, loading, error } = useSelector(
-    state => state.sellerSettlement
+    (state) => state.sellerSettlement
   );
 
-  /* Fetch data */
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   useEffect(() => {
     dispatch(fetchSellerSettlements());
   }, [dispatch]);
 
-  /* Debug */
-  useEffect(() => {
-    console.log("📊 Redux settlements:", settlements);
-    console.log("📊 Total records:", settlements.length);
-  }, [settlements]);
+  const handleChangePage = (_, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
-  /* Loading */
-  if (loading) {
-    return <CircularProgress sx={{ mt: 5 }} />;
-  }
+  const handleSettle = async (id) => {
+    try {
+      await dispatch(settleSellerPayment(id)).unwrap();
+      toast.success("Payment settled successfully!");
+    } catch (err) {
+      toast.error("Failed to settle payment");
+    }
+  };
 
-  /* Error */
-  if (error) {
-    return (
-      <Typography color="error" sx={{ mt: 5 }}>
-        Error: {error}
-      </Typography>
-    );
-  }
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this settlement?")) {
+      try {
+        await dispatch(deleteSellerSettlement(id)).unwrap();
+        toast.success("Settlement deleted successfully!");
+      } catch (err) {
+        toast.error("Failed to delete settlement");
+      }
+    }
+  };
 
   return (
-    <>
-      <Typography variant="h6" sx={{ mt: 3 }}>
-        Total Records: {settlements.length}
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" fontWeight={600} mb={2}>
+        Seller Settlements
       </Typography>
 
-      <TableContainer component={Paper} sx={{ mt: 4 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Product</TableCell>
-              <TableCell>Seller ID</TableCell>
-              <TableCell>Buyer ID</TableCell>
-              <TableCell>Subtotal</TableCell>
-              <TableCell>Commission</TableCell>
-              <TableCell>Seller Amount</TableCell>
-              <TableCell>Payment</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell>Actions</TableCell>
-            </TableRow>
-          </TableHead>
+      {loading && <CircularProgress sx={{ mt: 3 }} />}
+      {error && (
+        <Typography color="error" sx={{ mt: 3 }}>
+          Error: {error}
+        </Typography>
+      )}
 
-          <TableBody>
-            {settlements.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={10} align="center">
-                  No settlements found
-                </TableCell>
-              </TableRow>
-            )}
-
-            {settlements.map(row => (
-              <TableRow key={row.id}>
-                <TableCell>{row.productName || "N/A"}</TableCell>
-                <TableCell>{row.sellerId?.slice(0, 8)}...</TableCell>
-                <TableCell>{row.buyerId?.slice(0, 8)}...</TableCell>
-                <TableCell>Rs. {row.subtotal ?? 0}</TableCell>
-                <TableCell>Rs. {row.commissionAmount ?? 0}</TableCell>
-                <TableCell>Rs. {row.amountToSeller ?? 0}</TableCell>
-                <TableCell>{row.paymentMethod || "N/A"}</TableCell>
-
-                <TableCell>
-                  <Chip
-                    label={row.status || "unknown"}
-                    color={row.status === "settled" ? "success" : "warning"}
-                  />
-                </TableCell>
-
-                <TableCell>
-                  {row.createdAt
-                    ? new Date(row.createdAt).toLocaleDateString()
-                    : "N/A"}
-                </TableCell>
-
-                <TableCell>
-                  <Stack direction="row" spacing={1}>
-                    {row.status !== "settled" && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="success"
-                        onClick={() =>
-                          dispatch(settleSellerPayment(row.id))
-                        }
-                      >
-                        Settle
-                      </Button>
-                    )}
-
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      onClick={() =>
-                        dispatch(deleteSellerSettlement(row.id))
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </>
+      {!loading && !error && (
+        <SellerSettlementTable
+          settlements={settlements}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          handleChangePage={handleChangePage}
+          handleChangeRowsPerPage={handleChangeRowsPerPage}
+          onSettle={handleSettle}
+          onDelete={handleDelete}
+        />
+      )}
+    </Box>
   );
 };
 
-export default SellerSettlementTable;
+export default SellerSettlementPage;

@@ -1,104 +1,120 @@
-// import React, { useEffect } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import {
-//   fetchCommissions,
-//   settleCommission,
-// } from "../../store/slices/commission_slice";
-// import { fetchSellers } from "../../store/slices/seller_slice";
+import React from "react";
+import {
+  TableRow,
+  TableCell,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PaidIcon from "@mui/icons-material/Paid";
 
-// import {
-//   Box,
-//   Typography,
-//   Paper,
-//   Table,
-//   TableHead,
-//   TableRow,
-//   TableCell,
-//   TableBody,
-//   Button,
-//   Chip,
-// } from "@mui/material";
+import CommonTable from "../../components/Table/common_table";
 
-// const SellerSettlementPage = () => {
-//   const dispatch = useDispatch();
+const SellerSettlementTable = ({
+  settlements = [],
+  page,
+  rowsPerPage,
+  handleChangePage,
+  handleChangeRowsPerPage,
+  onSettle,
+  onDelete,
+}) => {
+  const paginatedSettlements = settlements.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
 
-//   const { list: commissions } = useSelector(
-//     (state) => state.commission
-//   );
-//   const { list: sellers } = useSelector((state) => state.sellers);
+  const columns = [
+    { id: "sn", label: "#", width: "5%" },
+    { id: "product", label: "Product", width: "15%" },
+    { id: "sellerId", label: "Seller ID", width: "10%" },
+    { id: "buyerId", label: "Buyer ID", width: "10%" },
+    { id: "subtotal", label: "Subtotal", width: "10%" },
+    { id: "commission", label: "Commission", width: "10%" },
+    { id: "amountToSeller", label: "Seller Amount", width: "10%" },
+    { id: "paymentMethod", label: "Payment", width: "10%" },
+    { id: "status", label: "Status", width: "10%" },
+    { id: "createdAt", label: "Created At", width: "10%" },
+    { id: "actions", label: "Actions", width: "10%" },
+  ];
 
-//   useEffect(() => {
-//     dispatch(fetchCommissions());
-//     dispatch(fetchSellers());
-//   }, [dispatch]);
+  const renderRow = (row, index) => (
+    <TableRow key={row.id} hover>
+      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+      <TableCell>
+        <Typography fontWeight="medium">{row.productName || "-"}</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">{row.sellerId?.slice(0, 8)}...</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">{row.buyerId?.slice(0, 8)}...</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">Rs. {row.subtotal ?? 0}</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">Rs. {row.commissionAmount ?? 0}</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">Rs. {row.amountToSeller ?? 0}</Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">{row.paymentMethod || "-"}</Typography>
+      </TableCell>
+      <TableCell>
+        <Chip
+          label={row.status || "unknown"}
+          size="small"
+          color={row.status === "settled" ? "success" : "warning"}
+        />
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2">
+          {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "-"}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Tooltip title="Settle Payment">
+          <span>
+            <IconButton
+              size="small"
+              color="success"
+              disabled={row.status === "settled"}
+              onClick={() => onSettle(row.id)}
+            >
+              <PaidIcon fontSize="small" />
+            </IconButton>
+          </span>
+        </Tooltip>
 
-//   const getSellerName = (sellerId) =>
-//     sellers.find((s) => s.id === sellerId)?.name || "Unknown Seller";
+        <Tooltip title="Delete Settlement">
+          <IconButton
+            size="small"
+            color="error"
+            onClick={() => onDelete(row.id)}
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </TableCell>
+    </TableRow>
+  );
 
-//   return (
-//     <Box p={3}>
-//       <Typography variant="h4" fontWeight={600} mb={3}>
-//         Seller Settlement
-//       </Typography>
+  return (
+    <CommonTable
+      columns={columns}
+      data={paginatedSettlements}
+      page={page}
+      rowsPerPage={rowsPerPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      emptyMessage="No settlements found."
+      renderRow={(row, index) => renderRow(row, index)}
+    />
+  );
+};
 
-//       <Paper elevation={4}>
-//         <Table>
-//           <TableHead sx={{ bgcolor: "#f5f5f5" }}>
-//             <TableRow>
-//               <TableCell>Product</TableCell>
-//               <TableCell>Seller</TableCell>
-//               <TableCell>Subtotal</TableCell>
-//               <TableCell>Commission</TableCell>
-//               <TableCell>Payable</TableCell>
-//               <TableCell>Status</TableCell>
-//               <TableCell align="center">Action</TableCell>
-//             </TableRow>
-//           </TableHead>
-
-//           <TableBody>
-//             {commissions.map((row) => (
-//               <TableRow key={row.id} hover>
-//                 <TableCell>{row.productName}</TableCell>
-//                 <TableCell>{getSellerName(row.sellerId)}</TableCell>
-//                 <TableCell>₹{row.subtotal}</TableCell>
-//                 <TableCell>
-//                   ₹{row.commissionAmount} ({row.commissionRate * 100}%)
-//                 </TableCell>
-//                 <TableCell>₹{row.amountToSeller}</TableCell>
-//                 <TableCell>
-//                   <Chip
-//                     label={row.status}
-//                     color={
-//                       row.status === "pending"
-//                         ? "warning"
-//                         : "success"
-//                     }
-//                     size="small"
-//                   />
-//                 </TableCell>
-//                 <TableCell align="center">
-//                   {row.status === "pending" ? (
-//                     <Button
-//                       size="small"
-//                       variant="contained"
-//                       color="success"
-//                       onClick={() =>
-//                         dispatch(settleCommission(row.id))
-//                       }
-//                     >
-//                       Pay
-//                     </Button>
-//                   ) : (
-//                     <Chip label="Paid" size="small" />
-//                   )}
-//                 </TableCell>
-//               </TableRow>
-//             ))}
-//           </TableBody>
-//         </Table>
-//       </Paper>
-//     </Box>
-//   );
-// };
-
-// export default SellerSettlementPage;
+export default SellerSettlementTable;
