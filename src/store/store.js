@@ -6,7 +6,7 @@ import productReducer from "./slices/product_slice";
 import sellerSettlementReducer from "./slices/sellerSettlementSlice";
 import sellerReducer from "./slices/seller_slice";
 import buyerReducer from "./slices/buyer_slice";
-
+import reviewReducer from "./slices/review_slice";
 const store = configureStore({
   reducer: {
     orders: ordersReducer,
@@ -15,6 +15,7 @@ const store = configureStore({
     sellers: sellerReducer,
     sellerSettlement: sellerSettlementReducer,
     buyers: buyerReducer,
+    reviews: reviewReducer,
 
   },
 });
