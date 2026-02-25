@@ -13,6 +13,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 
+import { toast } from "react-toastify"; // ✅ Import toast
+
 import CommonTable from "../../components/Table/common_table";
 
 const ReviewsTable = ({
@@ -45,8 +47,18 @@ const ReviewsTable = ({
   /* Save */
   const handleSave = (id) => {
     onUpdate(id, editText);
+
+    toast.success("Review updated successfully ✅"); // ✅ Toast
+
     setEditId(null);
     setEditText("");
+  };
+
+  /* Delete */
+  const handleDelete = (id) => {
+    onDelete(id);
+
+    toast.error("Review deleted ❌"); // ✅ Toast
   };
 
   /* Render Row */
@@ -57,15 +69,15 @@ const ReviewsTable = ({
         {page * rowsPerPage + index + 1}
       </TableCell>
 
-      {/* User */}
+      {/* User (FIXED) */}
       <TableCell>{row.userName}</TableCell>
 
-      {/* Rating (Stars) */}
+      {/* Rating */}
       <TableCell>
         <Rating value={row.rating} readOnly />
       </TableCell>
 
-      {/* Comment with Tooltip */}
+      {/* Comment */}
       <TableCell>
         {editId === row.id ? (
           <TextField
@@ -111,7 +123,7 @@ const ReviewsTable = ({
 
         <IconButton
           color="error"
-          onClick={() => onDelete(row.id)}
+          onClick={() => handleDelete(row.id)}
         >
           <DeleteIcon />
         </IconButton>
