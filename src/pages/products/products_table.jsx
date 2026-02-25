@@ -34,7 +34,9 @@ const ProductTable = ({
 }) => {
 const columns = [
   { id: "sn", label: "#", width: "5%" },
-  { id: "details", label: "Product Details", width: "20%" },
+  { id: "image", label: "Image", width: "10%" },
+{ id: "details", label: "Product Details", width: "20%" },
+  // { id: "details", label: "Product Details", width: "20%" },
   { id: "category", label: "Category", width: "15%" },
   { id: "currentPrice", label: "Current Price", width: "10%" },
   { id: "basePrice", label: "Base Price", width: "10%" },
@@ -60,6 +62,41 @@ const paginatedProducts = safeProducts.slice(
           ? page * rowsPerPage + index + 1
           : index + 1}
       </TableCell>
+   {/* Image */}
+<TableCell>
+  <Tooltip
+    title={
+      <Box
+        component="img"
+        src={
+          product.images?.find(img => img.isMain)?.url ||
+          product.images?.[0]?.url
+        }
+        sx={{ width: 200 }}
+      />
+    }
+    arrow
+  >
+    <Box
+      component="img"
+      src={
+        product.images?.find(img => img.isMain)?.url ||
+        product.images?.[0]?.url ||
+        "/no-image.png"
+      }
+      alt={product.name}
+      sx={{
+        width: 50,
+        height: 50,
+        objectFit: "cover",
+        borderRadius: 1,
+        border: "1px solid #ddd",
+        cursor: "pointer",
+      }}
+    />
+  </Tooltip>
+</TableCell>
+
   <TableCell>
       <Box>
         <Typography fontWeight="medium">
