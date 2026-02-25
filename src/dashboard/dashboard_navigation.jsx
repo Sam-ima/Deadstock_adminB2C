@@ -16,7 +16,7 @@ export const NAVIGATION = [
    { segment: "/dashboard/orders", title: "Orders", icon: <ShoppingCartIcon /> },
   { segment: "/dashboard/seller-settlement", title: "Seller Settlement", icon: <AccountBalanceWalletIcon/> },
   // { segment: "hidden-products", title: "Hidden Products", icon: <VisibilityOffIcon /> },
-  { segment: "/dashboard/reviews", title: "Reviews", icon: <VisibilityIcon /> },
+  { segment: "/dashboard/review", title: "Reviews", icon: <VisibilityIcon /> },
   { kind: "divider" },
   { segment: "logout", title: "Logout", icon: <LogoutIcon /> },
 ];
