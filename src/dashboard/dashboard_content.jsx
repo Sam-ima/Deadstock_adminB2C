@@ -24,10 +24,12 @@ import {
   Store as SellersIcon,
   Paid as PaidIcon,
 } from "@mui/icons-material";
-import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
-import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance"; // Amount to Seller
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet"; // Total Sales
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn"; // Commission Amount
 
 // temporary frontend data (API simulation)
 // import { dashboardData } from "../store/dashboardData";
@@ -71,6 +73,10 @@ const sellersCount = useSelector(
 
 const totalAmountToSeller = sellerSettlements.reduce(
   (sum, s) => sum + Number(s.amountToSeller || 0),
+  0
+);
+const totalSalesAmount = sellerSettlements.reduce(
+  (sum, s) => sum + Number(s.subtotal || 0),
   0
 );
 
@@ -121,19 +127,17 @@ const totalCommissionAmount = sellerSettlements.reduce(
       color: theme.palette.secondary.main,
       onClick: () => navigate("/orders"),
     },
-    {
+    
+{
   title: "Total Buyers",
-  // value: buyers.length, 
-  value: useSelector((state) => state.buyers.list.length),
-  icon: <BuyersIcon/>,
+  value: buyersCount,
+  icon: <BuyersIcon />,
   color: theme.palette.primary.light,
   onClick: () => navigate("/buyers"),
-
 },
 {
   title: "Total Sellers",
-  // value: sellers.length, // from Redux later
-  value: useSelector((state) => state.sellers.list.length),
+  value: sellersCount,
   icon: <SellersIcon />,
   color: theme.palette.info.main,
   onClick: () => navigate("/sellers"),
@@ -143,7 +147,7 @@ const totalCommissionAmount = sellerSettlements.reduce(
   {
   title: "Commission Amount",
   value: `₹${totalCommissionAmount.toLocaleString()}`,
-  icon: <CurrencyRupeeIcon />,
+ icon: <MonetizationOnIcon />,
   color: theme.palette.success.main,
   onClick: () => navigate("/seller-settlement"),
 },
@@ -157,7 +161,7 @@ const totalCommissionAmount = sellerSettlements.reduce(
     {
     title: "Amount to Seller",
     value: `₹${totalAmountToSeller.toLocaleString()}`,
-    icon: <AttachMoneyIcon />,
+    icon: <AccountBalanceIcon />,
     color: theme.palette.warning.main,
     onClick: () => navigate("/seller-settlement"),
   },
@@ -170,12 +174,13 @@ const totalCommissionAmount = sellerSettlements.reduce(
       onClick: () => navigate("/categories"),
     },
     
-   {
-    title: "Seller Settlement",
-    icon: <AccountBalanceWalletIcon />,
-    color: theme.palette.warning.dark,
-    onClick: () => navigate("/seller-settlement"),
-  },
+  {
+  title: "Total Sales",
+  value: `₹${totalSalesAmount.toLocaleString()}`,
+ icon: <AccountBalanceWalletIcon />,
+  color: theme.palette.primary.dark,
+  onClick: () => navigate("/seller-settlement"),
+},
 
   ];
 
