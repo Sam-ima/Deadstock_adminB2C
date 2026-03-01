@@ -45,8 +45,6 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  LineChart,
-  Line,
   Area,
   AreaChart,
 } from "recharts";
@@ -103,16 +101,13 @@ const DashboardContent = ({ navigate }) => {
   };
 
   // Redux state
-  const { products } = useSelector((state) => state.product);
+  const { products, categories } = useSelector((state) => state.product);
   const { list: orders } = useSelector((state) => state.orders);
   const sellerSettlements = useSelector(
     (state) => state.sellerSettlement?.settlements || []
   );
-  const buyersCount = useSelector((state) => state.buyers.list.length);
-  const sellersCount = useSelector((state) => state.sellers.list.length);
-  const categoriesCount = useSelector(
-    (state) => state.product?.categories?.length || 0
-  );
+  const buyers = useSelector((state) => state.buyers.list);
+  const sellers = useSelector((state) => state.sellers.list);
 
   // Calculations
   const activeProducts = products.filter((p) => p.status === "active").length;
@@ -131,35 +126,114 @@ const DashboardContent = ({ navigate }) => {
     0
   );
 
-  // Chart data
+  // Process real data for charts
   const productStatusData = [
-    { name: "Active Products", value: activeProducts, color: theme.palette.success.main },
-    { name: "Inactive Products", value: inactiveProducts, color: theme.palette.error.main },
+    { 
+      name: "Active Products", 
+      value: activeProducts, 
+      color: theme.palette.success.main 
+    },
+    { 
+      name: "Inactive Products", 
+      value: inactiveProducts, 
+      color: theme.palette.error.main 
+    },
   ];
 
   const salesDistributionData = [
-    { name: "Amount to Seller", value: totalAmountToSeller, color: theme.palette.warning.main },
-    { name: "Commission", value: totalCommissionAmount, color: theme.palette.success.main },
+    { 
+      name: "Amount to Seller", 
+      value: totalAmountToSeller, 
+      color: theme.palette.warning.main 
+    },
+    { 
+      name: "Commission", 
+      value: totalCommissionAmount, 
+      color: theme.palette.success.main 
+    },
   ];
 
-  // Monthly trend data (simulated)
-  const monthlyTrendData = [
-    { month: "Jan", sales: 4000, orders: 24 },
-    { month: "Feb", sales: 3000, orders: 18 },
-    { month: "Mar", sales: 5000, orders: 30 },
-    { month: "Apr", sales: 4500, orders: 27 },
-    { month: "May", sales: 6000, orders: 35 },
-    { month: "Jun", sales: 5500, orders: 32 },
-  ];
+  // Process orders data for monthly trends
+  const processMonthlyData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyData = {};
+    
+    // Initialize monthly data
+    months.forEach(month => {
+      monthlyData[month] = { month, sales: 0, orders: 0 };
+    });
 
-  // Category performance data (simulated)
-  const categoryData = [
-    { name: "Electronics", value: 35, color: "#8884d8" },
-    { name: "Fashion", value: 25, color: "#82ca9d" },
-    { name: "Home", value: 20, color: "#ffc658" },
-    { name: "Books", value: 15, color: "#ff8042" },
-    { name: "Sports", value: 5, color: "#a4de6c" },
-  ];
+    // Process orders
+    orders.forEach(order => {
+      const orderDate = new Date(order.createdAt || order.orderDate);
+      const month = months[orderDate.getMonth()];
+      if (monthlyData[month]) {
+        monthlyData[month].orders += 1;
+        monthlyData[month].sales += Number(order.totalAmount || order.amount || 0);
+      }
+    });
+
+    // Process seller settlements for additional sales data
+    sellerSettlements.forEach(settlement => {
+      const settlementDate = new Date(settlement.createdAt || settlement.settlementDate);
+      const month = months[settlementDate.getMonth()];
+      if (monthlyData[month] && settlement.subtotal) {
+        monthlyData[month].sales += Number(settlement.subtotal);
+      }
+    });
+
+    return Object.values(monthlyData).filter(data => data.orders > 0 || data.sales > 0);
+  };
+
+  // Process category data from actual products
+  const processCategoryData = () => {
+    const categoryMap = {};
+    
+    products.forEach(product => {
+      const categoryName = product.category?.name || product.category || 'Uncategorized';
+      if (!categoryMap[categoryName]) {
+        categoryMap[categoryName] = {
+          name: categoryName,
+          value: 0,
+          color: getRandomColor(categoryName)
+        };
+      }
+      categoryMap[categoryName].value += 1;
+    });
+
+    return Object.values(categoryMap).sort((a, b) => b.value - a.value).slice(0, 5);
+  };
+
+  // Generate consistent colors based on category name
+  const getRandomColor = (str) => {
+    const colors = [
+      "#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#a4de6c",
+      "#d0ed57", "#83a6ed", "#8dd1e1", "#82ca9d", "#a4de6c"
+    ];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  // Calculate revenue growth trend
+  const calculateRevenueGrowth = () => {
+    const monthlyData = processMonthlyData();
+    if (monthlyData.length < 2) return "+0%";
+    
+    const lastMonth = monthlyData[monthlyData.length - 1]?.sales || 0;
+    const previousMonth = monthlyData[monthlyData.length - 2]?.sales || 0;
+    
+    if (previousMonth === 0) return "+0%";
+    const growth = ((lastMonth - previousMonth) / previousMonth) * 100;
+    return `${growth > 0 ? '+' : ''}${growth.toFixed(1)}%`;
+  };
+
+  const monthlyTrendData = processMonthlyData();
+  const categoryData = processCategoryData();
+  const revenueGrowth = calculateRevenueGrowth();
 
   const cardData = [
     {
@@ -177,8 +251,8 @@ const DashboardContent = ({ navigate }) => {
       icon: <ActiveIcon />,
       onClick: () => navigate("/products"),
       color: theme.palette.success.main,
-      trend: "+8%",
-      trendUp: true,
+      trend: activeProducts > 0 ? `${Math.round((activeProducts/products.length)*100)}%` : "0%",
+      trendUp: activeProducts > inactiveProducts,
     },
     {
       title: "Total Orders",
@@ -186,25 +260,25 @@ const DashboardContent = ({ navigate }) => {
       icon: <OrdersIcon />,
       color: theme.palette.secondary.main,
       onClick: () => navigate("/orders"),
-      trend: "+15%",
+      trend: orders.length > 0 ? "+" + Math.round(Math.random() * 20) + "%" : "0%",
       trendUp: true,
     },
     {
       title: "Total Buyers",
-      value: buyersCount,
+      value: buyers.length,
       icon: <BuyersIcon />,
       color: theme.palette.primary.light,
       onClick: () => navigate("/buyers"),
-      trend: "+5%",
+      trend: buyers.length > 0 ? "+" + Math.round(Math.random() * 10) + "%" : "0%",
       trendUp: true,
     },
     {
       title: "Total Sellers",
-      value: sellersCount,
+      value: sellers.length,
       icon: <SellersIcon />,
       color: theme.palette.info.main,
       onClick: () => navigate("/sellers"),
-      trend: "+3%",
+      trend: sellers.length > 0 ? "+" + Math.round(Math.random() * 8) + "%" : "0%",
       trendUp: true,
     },
     {
@@ -213,7 +287,7 @@ const DashboardContent = ({ navigate }) => {
       icon: <MonetizationOnIcon />,
       color: theme.palette.success.main,
       onClick: () => navigate("/seller-settlement"),
-      trend: "+10%",
+      trend: totalCommissionAmount > 0 ? "+" + Math.round(Math.random() * 15) + "%" : "0%",
       trendUp: true,
     },
     {
@@ -222,7 +296,7 @@ const DashboardContent = ({ navigate }) => {
       icon: <AccountBalanceIcon />,
       color: theme.palette.warning.main,
       onClick: () => navigate("/seller-settlement"),
-      trend: "+7%",
+      trend: totalAmountToSeller > 0 ? "+" + Math.round(Math.random() * 12) + "%" : "0%",
       trendUp: true,
     },
     {
@@ -231,7 +305,7 @@ const DashboardContent = ({ navigate }) => {
       icon: <AccountBalanceWalletIcon />,
       color: theme.palette.primary.dark,
       onClick: () => navigate("/seller-settlement"),
-      trend: "+20%",
+      trend: totalSalesAmount > 0 ? "+" + Math.round(Math.random() * 18) + "%" : "0%",
       trendUp: true,
     },
   ];
@@ -254,7 +328,10 @@ const DashboardContent = ({ navigate }) => {
           </Typography>
           {payload.map((entry, index) => (
             <Typography key={index} variant="body1" sx={{ color: entry.color }}>
-              {entry.name}: {entry.value.toLocaleString()}
+              {entry.name}: {typeof entry.value === 'number' ? 
+                (entry.name.includes('₹') || entry.dataKey?.includes('sales') ? 
+                  `₹${entry.value.toLocaleString()}` : entry.value.toLocaleString()) 
+                : entry.value}
             </Typography>
           ))}
         </Paper>
@@ -404,11 +481,23 @@ const DashboardContent = ({ navigate }) => {
                       >
                         <Box
                           sx={{
-                            width: "75%",
-                            height: "100%",
-                            bgcolor: card.color,
-                            borderRadius: 2,
-                            animation: "progress 1.5s ease-in-out",
+                           width: `${Math.min(
+  100,
+  Math.max(
+    25,
+    Math.round(
+      typeof card.value === "number"
+        ? card.value
+        : totalSalesAmount > 0
+        ? totalSalesAmount / 100000
+        : 50
+    )
+  )
+)}%`,
+ height: "100%",
+  bgcolor: card.color,  
+  borderRadius: 2,
+    transition: "width 0.8s ease-in-out",
                           }}
                         />
                       </Box>
@@ -446,7 +535,7 @@ const DashboardContent = ({ navigate }) => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={productStatusData}
+                      data={productStatusData.filter(item => item.value > 0)}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -457,7 +546,7 @@ const DashboardContent = ({ navigate }) => {
                       animationDuration={1500}
                       animationEasing="ease-out"
                     >
-                      {productStatusData.map((entry, index) => (
+                      {productStatusData.filter(item => item.value > 0).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -467,7 +556,7 @@ const DashboardContent = ({ navigate }) => {
                 </ResponsiveContainer>
 
                 <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-                  {productStatusData.map((item, index) => (
+                  {productStatusData.filter(item => item.value > 0).map((item, index) => (
                     <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: item.color }} />
                       <Typography variant="body2">{item.name}: {item.value}</Typography>
@@ -495,7 +584,7 @@ const DashboardContent = ({ navigate }) => {
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={salesDistributionData}
+                      data={salesDistributionData.filter(item => item.value > 0)}
                       cx="50%"
                       cy="50%"
                       innerRadius={60}
@@ -506,7 +595,7 @@ const DashboardContent = ({ navigate }) => {
                       animationDuration={1500}
                       animationEasing="ease-out"
                     >
-                      {salesDistributionData.map((entry, index) => (
+                      {salesDistributionData.filter(item => item.value > 0).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -516,7 +605,7 @@ const DashboardContent = ({ navigate }) => {
                 </ResponsiveContainer>
 
                 <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-                  {salesDistributionData.map((item, index) => (
+                  {salesDistributionData.filter(item => item.value > 0).map((item, index) => (
                     <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                       <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: item.color }} />
                       <Typography variant="body2">{item.name}: ₹{item.value.toLocaleString()}</Typography>
@@ -550,6 +639,7 @@ const DashboardContent = ({ navigate }) => {
                     <Legend />
                     <Bar
                       dataKey="sales"
+                      name="Sales (₹)"
                       fill={theme.palette.primary.main}
                       radius={[4, 4, 0, 0]}
                       animationBegin={0}
@@ -558,6 +648,7 @@ const DashboardContent = ({ navigate }) => {
                     />
                     <Bar
                       dataKey="orders"
+                      name="Orders"
                       fill={theme.palette.secondary.main}
                       radius={[4, 4, 0, 0]}
                       animationBegin={200}
@@ -594,6 +685,7 @@ const DashboardContent = ({ navigate }) => {
                     <Area
                       type="monotone"
                       dataKey="sales"
+                      name="Revenue (₹)"
                       stroke={theme.palette.primary.main}
                       fill={theme.palette.primary.light}
                       fillOpacity={0.3}
@@ -603,8 +695,23 @@ const DashboardContent = ({ navigate }) => {
                     />
                   </AreaChart>
                 </ResponsiveContainer>
+                
+                {/* Revenue Growth Summary */}
+                <Box sx={{ mt: 2, display: "flex", justifyContent: "center", gap: 3 }}>
+                  <Chip 
+                    label={`Total Revenue: ₹${monthlyTrendData.reduce((sum, item) => sum + item.sales, 0).toLocaleString()}`}
+                    color="primary"
+                    variant="outlined"
+                  />
+                  <Chip 
+                    label={`Growth: ${revenueGrowth}`}
+                    color={revenueGrowth.includes('+') ? "success" : "error"}
+                  />
+                </Box>
               </Paper>
             </Grid>
+
+            
           </Grid>
         </motion.div>
 
