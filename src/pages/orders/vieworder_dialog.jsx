@@ -38,7 +38,7 @@ const ViewOrderDialog = ({ open, onClose, order }) => {
           <Divider sx={{ my: 1 }} />
 
           <Typography fontWeight={600}>Customer Info:</Typography>
-          <Typography>{deliveryDetails.fullName || "-"}</Typography>
+          <Typography fontWeight="medium">{order.customerName}</Typography>
           <Typography>{deliveryDetails.phone || "-"}</Typography>
           <Typography>
             {deliveryDetails.address || "-"}, {deliveryDetails.city || "-"}

@@ -28,31 +28,47 @@ export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const q = query(
+      // Fetch Orders
+      const ordersQuery = query(
         collection(db, "orders"),
         orderBy("createdAt", "desc")
       );
 
-      const snapshot = await getDocs(q);
+      const ordersSnap = await getDocs(ordersQuery);
 
-      const orders = snapshot.docs.map((docSnap) => {
+      // Fetch Users
+      const usersSnap = await getDocs(collection(db, "users"));
+
+      // Create user map: uid => userData
+      const usersMap = {};
+
+      usersSnap.docs.forEach((doc) => {
+        usersMap[doc.data().uid] = doc.data();
+      });
+
+      // Combine Orders + Users
+      const orders = ordersSnap.docs.map((docSnap) => {
         const data = docSnap.data();
+
+        const user = usersMap[data.userId];
 
         return {
           id: docSnap.id,
 
-          // Basic fields
           userId: data.userId,
+
+          // Attach user info
+          customerName: user?.fullName || "Unknown",
+          customerEmail: user?.email || "",
+          customerPhoto: user?.photoURL || "",
+
           totalAmount: data.totalAmount,
           paymentMethod: data.paymentMethod,
           paymentStatus: data.paymentStatus,
 
-          // Timestamp (FIXED)
           createdAt: convertTimestampToDate(data.createdAt),
 
-          // Nested object
           deliveryDetails: {
-            fullName: data.deliveryDetails?.fullName || "",
             phone: data.deliveryDetails?.phone || "",
             address: data.deliveryDetails?.address || "",
             city: data.deliveryDetails?.city || "",
@@ -60,7 +76,6 @@ export const fetchOrders = createAsyncThunk(
             zip: data.deliveryDetails?.zip || "",
           },
 
-          // Array
           items: Array.isArray(data.items) ? data.items : [],
         };
       });
