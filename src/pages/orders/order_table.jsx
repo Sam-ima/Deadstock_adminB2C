@@ -54,7 +54,7 @@ const OrderTable = ({
             </TableCell>
             <TableCell rowSpan={order.items.length}>
               <Typography fontWeight="medium">
-                {order.deliveryDetails?.fullName || "-"}
+                {order.customerName || "-"}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {order.deliveryDetails?.phone || "-"}
