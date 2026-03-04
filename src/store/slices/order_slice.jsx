@@ -1,4 +1,3 @@
-// src/store/slices/ordersSlice.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   collection,
@@ -8,38 +7,97 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  addDoc,
 } from "firebase/firestore";
 import { db } from "../../components/config/firebase";
 
-// 🔹 Fetch all orders
+/**
+ * 🔹 Helper: Convert Firestore Timestamp safely
+ */
+const convertTimestampToDate = (timestamp) => {
+  if (!timestamp) return null;
+  if (typeof timestamp.toDate === "function") {
+    return timestamp.toDate(); // JS Date (serializable)
+  }
+  return timestamp;
+};
+
+/**
+ * 🔹 Fetch all orders
+ */
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
   async (_, { rejectWithValue }) => {
     try {
-      const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
-      const snapshot = await getDocs(q);
-      const orders = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate
-          ? doc.data().createdAt.toDate()
-          : doc.data().createdAt,
-      }));
+      // Fetch Orders
+      const ordersQuery = query(
+        collection(db, "orders"),
+        orderBy("createdAt", "desc")
+      );
+
+      const ordersSnap = await getDocs(ordersQuery);
+
+      // Fetch Users
+      const usersSnap = await getDocs(collection(db, "users"));
+
+      // Create user map: uid => userData
+      const usersMap = {};
+
+      usersSnap.docs.forEach((doc) => {
+        usersMap[doc.data().uid] = doc.data();
+      });
+
+      // Combine Orders + Users
+      const orders = ordersSnap.docs.map((docSnap) => {
+        const data = docSnap.data();
+
+        const user = usersMap[data.userId];
+
+        return {
+          id: docSnap.id,
+
+          userId: data.userId,
+
+          // Attach user info
+          customerName: user?.fullName || "Unknown",
+          customerEmail: user?.email || "",
+          customerPhoto: user?.photoURL || "",
+
+          totalAmount: data.totalAmount,
+          paymentMethod: data.paymentMethod,
+          paymentStatus: data.paymentStatus,
+
+          createdAt: convertTimestampToDate(data.createdAt),
+
+          deliveryDetails: {
+            phone: data.deliveryDetails?.phone || "",
+            address: data.deliveryDetails?.address || "",
+            city: data.deliveryDetails?.city || "",
+            state: data.deliveryDetails?.state || "",
+            zip: data.deliveryDetails?.zip || "",
+          },
+
+          items: Array.isArray(data.items) ? data.items : [],
+        };
+      });
+
       return orders;
     } catch (error) {
+      console.error("Fetch orders error:", error);
       return rejectWithValue(error.message);
     }
   }
 );
 
-// 🔹 Update an order
+/**
+ * 🔹 Update an order
+ */
 export const updateOrder = createAsyncThunk(
   "orders/updateOrder",
   async ({ id, data }, { rejectWithValue }) => {
     try {
       const orderRef = doc(db, "orders", id);
       await updateDoc(orderRef, data);
+
       return { id, data };
     } catch (error) {
       return rejectWithValue(error.message);
@@ -47,7 +105,9 @@ export const updateOrder = createAsyncThunk(
   }
 );
 
-// 🔹 Delete an order
+/**
+ * 🔹 Delete an order
+ */
 export const deleteOrder = createAsyncThunk(
   "orders/deleteOrder",
   async (id, { rejectWithValue }) => {
@@ -78,7 +138,7 @@ const ordersSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch
+      // 🔹 Fetch Orders
       .addCase(fetchOrders.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -91,17 +151,31 @@ const ordersSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Update
+
+      // 🔹 Update Order
       .addCase(updateOrder.fulfilled, (state, action) => {
-        const index = state.list.findIndex((o) => o.id === action.payload.id);
-        if (index !== -1) state.list[index] = { ...state.list[index], ...action.payload.data };
+        const index = state.list.findIndex(
+          (o) => o.id === action.payload.id
+        );
+
+        if (index !== -1) {
+          state.list[index] = {
+            ...state.list[index],
+            ...action.payload.data,
+          };
+        }
       })
-      // Delete
+
+      // 🔹 Delete Order
       .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.list = state.list.filter((o) => o.id !== action.payload);
+        state.list = state.list.filter(
+          (o) => o.id !== action.payload
+        );
       });
   },
 });
 
-export const { setSelectedOrder, clearSelectedOrder } = ordersSlice.actions;
+export const { setSelectedOrder, clearSelectedOrder } =
+  ordersSlice.actions;
+
 export default ordersSlice.reducer;

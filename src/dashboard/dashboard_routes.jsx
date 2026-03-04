@@ -7,6 +7,8 @@ import LowStockPage from "../pages/low_stock_page";
 import OrdersPage from "../pages/orders/order_page";
 // import HiddenProductsPage from "../pages/hidden_product_page";
 import ReviewPage from "../pages/reviews/review.page";
+import SellerSettlementPage from "../pages/seller settlement/seller_settlement.page";
+
 
 export const componentMap = {
   "/dashboard": <DashboardContent />,
@@ -15,6 +17,7 @@ export const componentMap = {
   "/products": <ProductsPage />,
   "/low-stock": <LowStockPage />,
   "/orders": <OrdersPage />,
+  "/seller-settlement": <SellerSettlementPage />,
   // "/hidden-products": <HiddenProductsPage />,
   "/review": <ReviewPage />,
 };

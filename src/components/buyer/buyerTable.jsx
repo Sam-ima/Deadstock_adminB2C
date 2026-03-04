@@ -5,25 +5,23 @@ import {
   IconButton,
   TextField,
   Button,
+  Avatar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
+import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../config/firebase";
+
+import { useDispatch, useSelector } from "react-redux";
+import { fetchBuyers } from "../../store/slices/buyer_slice";
 
 import CommonTable from "../Table/common_table";
 
 const BuyerTable = () => {
-  const [buyers, setBuyers] = useState([]);
+  const dispatch = useDispatch();
+  const { list: buyers, loading } = useSelector((state) => state.buyers);
+
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({ fullName: "", email: "" });
 
@@ -31,23 +29,12 @@ const BuyerTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  // 🔹 Fetch buyers
+  /* 🔹 Fetch buyers from Redux */
   useEffect(() => {
-    const fetchBuyers = async () => {
-      const q = query(collection(db, "users"), where("role", "==", "buyer"));
-      const snapshot = await getDocs(q);
+    dispatch(fetchBuyers());
+  }, [dispatch]);
 
-      const buyerList = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setBuyers(buyerList);
-    };
-
-    fetchBuyers();
-  }, []);
-
+  /* 🔹 Edit */
   const handleEdit = (buyer) => {
     setEditId(buyer.id);
     setEditData({
@@ -56,25 +43,25 @@ const BuyerTable = () => {
     });
   };
 
+  /* 🔹 Update */
   const handleUpdate = async (id) => {
     await updateDoc(doc(db, "users", id), editData);
-
-    setBuyers((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, ...editData } : b))
-    );
-
+    dispatch(fetchBuyers());
     setEditId(null);
   };
 
+  /* 🔹 Delete */
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this buyer?")) return;
 
     await deleteDoc(doc(db, "users", id));
-    setBuyers((prev) => prev.filter((b) => b.id !== id));
+    dispatch(fetchBuyers());
   };
 
-  // 🔹 Table columns
+  /* 🔹 Table columns */
   const columns = [
+    { id: "sn", label: "S.N", width: 60 },
+    { id: "photo", label: "Photo" },
     { id: "fullName", label: "Full Name" },
     { id: "email", label: "Email" },
     { id: "provider", label: "Provider" },
@@ -82,7 +69,7 @@ const BuyerTable = () => {
     { id: "actions", label: "Actions", width: 150 },
   ];
 
-  // 🔹 Paginated data
+  /* 🔹 Paginated data */
   const paginatedBuyers = buyers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -94,14 +81,30 @@ const BuyerTable = () => {
       data={paginatedBuyers}
       page={page}
       rowsPerPage={rowsPerPage}
+      loading={loading}
       onPageChange={(_, newPage) => setPage(newPage)}
       onRowsPerPageChange={(e) => {
         setRowsPerPage(parseInt(e.target.value, 10));
         setPage(0);
       }}
       emptyMessage="No buyers found."
-      renderRow={(buyer) => (
+      renderRow={(buyer, index) => (
         <TableRow key={buyer.id}>
+          {/* 🔹 S.N */}
+          <TableCell>
+            {page * rowsPerPage + index + 1}
+          </TableCell>
+
+          {/* 🔹 Photo (Cloudinary) */}
+          <TableCell>
+            <Avatar
+              src={buyer.photoURL || "/placeholder-user.png"}
+              alt={buyer.fullName}
+              sx={{ width: 40, height: 40 }}
+            />
+          </TableCell>
+
+          {/* 🔹 Full Name */}
           <TableCell>
             {editId === buyer.id ? (
               <TextField
@@ -116,6 +119,7 @@ const BuyerTable = () => {
             )}
           </TableCell>
 
+          {/* 🔹 Email */}
           <TableCell>
             {editId === buyer.id ? (
               <TextField
@@ -130,12 +134,13 @@ const BuyerTable = () => {
             )}
           </TableCell>
 
-          <TableCell>{buyer.provider}</TableCell>
+          <TableCell>{buyer.provider || "-"}</TableCell>
 
           <TableCell>
             {buyer.createdAt?.toDate().toLocaleDateString()}
           </TableCell>
 
+          {/* 🔹 Actions */}
           <TableCell align="center">
             {editId === buyer.id ? (
               <Button
