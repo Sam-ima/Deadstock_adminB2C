@@ -1,34 +1,51 @@
-import React, { useEffect } from "react";
-import { Container } from "@mui/material";
-import DashboardTabs from "../dashboard/dashboard_tabs";
+import React, { useEffect, useState } from "react";
+import { Container, CircularProgress, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import auth from "../components/config/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+
+import { auth } from "../components/config/firebase";
+import DashboardTabs from "../dashboard/dashboard_tabs";
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
 
-   useEffect(() => {
-    // Firebase auth state listener
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        // No user logged in
         navigate("/");
       }
-      
+
+      setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup on unmount
+    return () => unsubscribe();
   }, [navigate]);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Container
       maxWidth={false}
       disableGutters
       sx={{
-        // backgroundColor: "blue",
-        overflowX: "hidden",        // ⭐ FIX
-        maxWidth: "100vw",          // ⭐ FIX
+        overflowX: "hidden",
+        maxWidth: "100vw",
+        p: 0,
       }}
     >
       <DashboardTabs />

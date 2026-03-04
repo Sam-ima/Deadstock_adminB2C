@@ -2,32 +2,34 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import { Box } from "@mui/material";
 import { AppProvider, DashboardLayout } from "@toolpad/core";
-import { useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth"; // Import signOut
-import { auth } from "../components/config/firebase"
+import { useNavigate, useLocation } from "react-router-dom";
+import { signOut } from "firebase/auth";
 
+import { auth } from "../components/config/firebase";
 import { NAVIGATION } from "./dashboard_navigation";
 import { dashboardTheme } from "./dashboard_theme";
 import { resolveComponent } from "./dashboard_routes";
 import ToolbarActions from "./toolbar_actions";
 
-// import logo from "../assets/ChatGPT Image Dec 23, 2025, 11_11_06 PM.png";
+/* ================= BRANDING ================= */
 
 const BRANDING = {
   title: "Deadstock Admin",
   logo: (
     <img
       src="/logo.png"
-       alt="Deadstock Logo"
+      alt="Deadstock Logo"
       style={{ height: 50, width: 50, borderRadius: "50%" }}
     />
   ),
 };
 
-function PageContent({ pathname, navigate  }) {
+/* ================= CONTENT ================= */
+
+function PageContent({ pathname, navigate }) {
   return (
     <Box sx={{ p: 2, width: "100%", overflowX: "hidden" }}>
-      {resolveComponent(pathname,navigate)}
+      {resolveComponent(pathname, navigate)}
     </Box>
   );
 }
@@ -36,35 +38,49 @@ PageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
+/* ================= MAIN ================= */
+
 export default function DashboardTabs({ window }) {
   const navigate = useNavigate();
-  const [pathname, setPathname] = React.useState("/dashboard");
+  const location = useLocation();
 
-  // Handle logout with Firebase
+  /* LOGOUT */
   const handleLogout = async () => {
-    try {
-      await signOut(auth); // Firebase logout
-      localStorage.removeItem("user"); // Remove user data
-      localStorage.removeItem("login_token"); // Remove old token if exists
-      navigate("/"); // Redirect to login
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+    await signOut(auth);
+    navigate("/");
   };
 
+  /* Convert URL → segment */
+  const getSegment = (path) => {
+    if (path === "/dashboard") return "dashboard";
+
+    const match = path.match(/^\/dashboard\/(.+)/);
+    return match ? match[1] : "dashboard";
+  };
+
+  /* Toolpad Router */
   const router = React.useMemo(
     () => ({
-      pathname,
+      pathname: getSegment(location.pathname),
       searchParams: new URLSearchParams(),
-      navigate: (path) => {
-        if (path === "/logout") {
-          handleLogout(); // Call Firebase logout
+
+      navigate: (segment) => {
+        if (segment === "logout") {
+          handleLogout();
           return;
         }
-        setPathname(String(path));
+
+        const path =
+          segment === "dashboard"
+            ? "/dashboard"
+            : `/dashboard/${segment}`;
+
+        if (location.pathname !== path) {
+          navigate(path);
+        }
       },
     }),
-    [pathname] // Add dependencies
+    [location.pathname, navigate]
   );
 
   return (
@@ -80,8 +96,15 @@ export default function DashboardTabs({ window }) {
           toolbarActions: () => <ToolbarActions navigate={navigate} />,
         }}
       >
-      <PageContent pathname={pathname} navigate={router.navigate} />
+        <PageContent
+          pathname={location.pathname}
+          navigate={router.navigate}
+        />
       </DashboardLayout>
     </AppProvider>
   );
 }
+
+DashboardTabs.propTypes = {
+  window: PropTypes.func,
+};

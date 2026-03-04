@@ -8,13 +8,59 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 export const NAVIGATION = [
-  { segment: "dashboard", title: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-  { segment: "sellers", title: "Sellers", icon: <Inventory2Icon />, path: "/dashboard/sellers" },
-  { segment: "buyers", title: "Buyers", icon: <AccountCircleIcon />, path: "/dashboard/buyers" },
-  { segment: "products", title: "Products", icon: <ProductionQuantityLimitsIcon />, path: "/dashboard/products" },
-  { segment: "orders", title: "Orders", icon: <ShoppingCartIcon />, path: "/dashboard/orders" },
-  { segment: "seller-settlement", title: "Seller Settlement", icon: <AccountBalanceWalletIcon />, path: "/dashboard/seller-settlement" },
-  { segment: "review", title: "Reviews", icon: <VisibilityIcon />, path: "/dashboard/review" },
+  {
+    segment: "dashboard",
+    title: "Dashboard",
+    icon: <DashboardIcon />,
+    pattern: "dashboard",
+  },
+  {
+    segment: "sellers",
+    title: "Sellers",
+    icon: <Inventory2Icon />,
+    pattern: "sellers",
+  },
+  {
+    segment: "buyers",
+    title: "Buyers",
+    icon: <AccountCircleIcon />,
+    pattern: "buyers",
+  },
+  {
+    segment: "products",
+    title: "Products",
+    icon: <ProductionQuantityLimitsIcon />,
+    pattern: "products",
+  },
+  // {
+  //   segment: "low-stock",
+  //   title: "Low Stock",
+  //   icon: <ProductionQuantityLimitsIcon />,
+  //   pattern: "low-stock",
+  // },
+  {
+    segment: "orders",
+    title: "Orders",
+    icon: <ShoppingCartIcon />,
+    pattern: "orders",
+  },
+  {
+    segment: "seller-settlement",
+    title: "Seller Settlement",
+    icon: <AccountBalanceWalletIcon />,
+    pattern: "seller-settlement",
+  },
+  {
+    segment: "review",
+    title: "Reviews",
+    icon: <VisibilityIcon />,
+    pattern: "review",
+  },
   { kind: "divider" },
-  { segment: "logout", title: "Logout", icon: <LogoutIcon />, path: "/logout", action: "logout" },
+  {
+    segment: "logout",
+    title: "Logout",
+    icon: <LogoutIcon />,
+    action: "logout",
+  },
 ];
