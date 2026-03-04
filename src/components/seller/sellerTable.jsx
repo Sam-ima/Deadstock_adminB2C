@@ -1,48 +1,69 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Typography,
   Box,
   Avatar,
+  IconButton,
+  Typography,
+  TableRow,
+  TableCell,
+   Tooltip,
 } from "@mui/material";
+
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+import { toast } from "react-toastify";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { db } from "../config/firebase";
+
 import EditSellerDialog from "./editSellerDialog";
 import SellerProductsDialog from "./sellerProductDetails/sellerProductsMainPage";
-import { toast } from "react-toastify";
-import { collection, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
-import { db } from "../config/firebase";
+import CommonTable from "../Table/common_table"; 
 
 const SellerTable = () => {
   const [sellers, setSellers] = useState([]);
+
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedSeller, setSelectedSeller] = useState(null);
-  const [openProducts, setOpenProducts] = useState(false);
-  const [selectedSellerForProducts, setSelectedSellerForProducts] = useState(null);
 
-  /* 🔹 Fetch sellers from Firestore */
+  const [openProducts, setOpenProducts] = useState(false);
+  const [selectedSellerForProducts, setSelectedSellerForProducts] =
+    useState(null);
+
+  /* Pagination */
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  /* Fetch sellers */
   const fetchSellers = async () => {
     try {
-      const q = query(collection(db, "users"), where("role", "==", "seller"));
+      const q = query(
+        collection(db, "users"),
+        where("role", "==", "seller")
+      );
+
       const snapshot = await getDocs(q);
+
       const sellersData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+
       setSellers(sellersData);
     } catch (error) {
       console.error("Error fetching sellers:", error);
     }
   };
 
-  /* 🔹 Delete seller */
+  /* Delete seller */
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this seller?")) {
       await deleteDoc(doc(db, "users", id));
@@ -51,13 +72,13 @@ const SellerTable = () => {
     }
   };
 
-  /* 🔹 Edit seller */
+  /* Edit seller */
   const handleEdit = (seller) => {
     setSelectedSeller(seller);
     setOpenEdit(true);
   };
 
-  /* 🔹 View seller products */
+  /* View products */
   const handleViewProducts = (seller) => {
     setSelectedSellerForProducts(seller);
     setOpenProducts(true);
@@ -67,84 +88,117 @@ const SellerTable = () => {
     fetchSellers();
   }, []);
 
+  /* Table Columns */
+  const columns = [
+    { id: "sn", label: "S.N", width: 60 },
+    { id: "photo", label: "Photo", width: 80 },
+    { id: "name", label: "Name" },
+    { id: "email", label: "Email" },
+    { id: "address", label: "Address" },
+    { id: "city", label: "City" },
+    { id: "country", label: "Country" },
+    { id: "pan", label: "PAN" },
+    { id: "phone", label: "Phone" },
+    { id: "shop", label: "Shop Name" },
+    { id: "actions", label: "Actions", width: 180 },
+  ];
+
+  /* Pagination Data */
+  const paginatedData = sellers.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  /* Render Each Row */
+  const renderRow = (seller, index) => (
+    <TableRow key={seller.id} hover>
+      {/* S.N */}
+      <TableCell>
+        {page * rowsPerPage + index + 1}
+      </TableCell>
+
+      {/* Photo */}
+      <TableCell>
+        <Avatar
+          src={seller.photoURL || "/placeholder-user.png"}
+          alt={seller.fullName}
+          sx={{ width: 40, height: 40 }}
+        />
+      </TableCell>
+
+      <TableCell>{seller.fullName}</TableCell>
+      <TableCell>{seller.email}</TableCell>
+      <TableCell>{seller.business?.address || "-"}</TableCell>
+      <TableCell>{seller.business?.city || "-"}</TableCell>
+      <TableCell>{seller.business?.country || "-"}</TableCell>
+      <TableCell>{seller.panVat || "-"}</TableCell>
+      <TableCell>{seller.phone || "-"}</TableCell>
+      <TableCell>{seller.shopName || "-"}</TableCell>
+
+      {/* Actions */}
+    <TableCell align="center">
+  <Box
+    sx={{
+      display: "flex",
+      // flexDirection: "column", 
+      alignItems: "center",
+      justifyContent: "center",
+      // gap: 1,
+    }}
+  >
+    {/* View Products */}
+    <Tooltip title="View Products" arrow>
+      <IconButton
+        size="small"
+        color="primary"
+        onClick={() => handleViewProducts(seller)}
+      >
+        <VisibilityIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+
+    {/* Edit */}
+    <Tooltip title="Edit Seller" arrow>
+      <IconButton 
+        size="small"
+        color="info"
+        onClick={() => handleEdit(seller)}>
+        <EditIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+
+    {/* Delete */}
+    <Tooltip title="Delete Seller" arrow>
+      <IconButton
+        size="small"
+        color="error"
+        onClick={() => handleDelete(seller.id)}
+      >
+        <DeleteIcon fontSize="small" />
+      </IconButton>
+    </Tooltip>
+  </Box>
+</TableCell>
+    </TableRow>
+  );
+
   return (
-    <Box sx={{ p: 3 }}>
-      <TableContainer component={Paper} elevation={3}>
-        <Table>
-          {/* TABLE HEADER */}
-          <TableHead>
-            <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
-              <TableCell sx={{ fontWeight: "bold" }}>S.N</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Photo</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Address</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>City</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Country</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>PAN</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Phone</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>Shop Name</TableCell>
-              <TableCell sx={{ fontWeight: "bold", textAlign: "center" }}>Actions</TableCell>
-            </TableRow>
-          </TableHead>
+    <Box>
+      <CommonTable
+        columns={columns}
+        data={paginatedData}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        onPageChange={(e, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        emptyMessage="No sellers found"
+        renderRow={renderRow}
+      />
 
-          {/* TABLE BODY */}
-          <TableBody>
-            {sellers.length > 0 ? (
-              sellers.map((seller, index) => (
-                <TableRow key={seller.id} hover sx={{ "&:last-child td": { borderBottom: 0 } }}>
-                  <TableCell>{index + 1}</TableCell>
-
-                  {/* 🔹 CLOUDINARY PHOTO */}
-                  <TableCell>
-                    <Avatar
-                      src={seller.photoURL || "/placeholder-user.png"} // Cloudinary URL or fallback
-                      alt={seller.fullName}
-                      sx={{ width: 40, height: 40 }}
-                    />
-                  </TableCell>
-
-                  <TableCell>{seller.fullName}</TableCell>
-                  <TableCell>{seller.email}</TableCell>
-                  <TableCell>{seller.business?.address || "-"}</TableCell>
-                  <TableCell>{seller.business?.city || "-"}</TableCell>
-                  <TableCell>{seller.business?.country || "-"}</TableCell>
-                  <TableCell>{seller.panVat}</TableCell>
-                  <TableCell>{seller.phone}</TableCell>
-                  <TableCell>{seller.shopName}</TableCell>
-
-                  {/* ACTIONS */}
-                  <TableCell align="center" sx={{ display: "flex", gap: 1, justifyContent: "center" }}>
-                    <Typography
-                      color="info"
-                      onClick={() => handleViewProducts(seller)}
-                      sx={{ fontSize: "0.9rem", cursor: "pointer" }}
-                    >
-                      view products
-                    </Typography>
-
-                    <IconButton onClick={() => handleEdit(seller)}>
-                      <EditIcon />
-                    </IconButton>
-
-                    <IconButton color="error" onClick={() => handleDelete(seller.id)}>
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={11} align="center">
-                  No sellers found
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* EDIT SELLER DIALOG */}
+      {/* Edit Dialog */}
       <EditSellerDialog
         open={openEdit}
         handleClose={() => setOpenEdit(false)}
@@ -152,7 +206,7 @@ const SellerTable = () => {
         refreshData={fetchSellers}
       />
 
-      {/* VIEW SELLER PRODUCTS DIALOG */}
+      {/* Products Dialog */}
       <SellerProductsDialog
         open={openProducts}
         handleClose={() => setOpenProducts(false)}
