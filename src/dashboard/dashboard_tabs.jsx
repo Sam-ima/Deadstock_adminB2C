@@ -38,6 +38,28 @@ PageContent.propTypes = {
   pathname: PropTypes.string.isRequired,
 };
 
+/* ================= HELPERS ================= */
+
+/**
+ * Converts a React Router path like "/dashboard/orders"
+ * into the Toolpad-style segment path "/orders".
+ * The root "/dashboard" maps to "/".
+ */
+const toToolpadPathname = (path) => {
+  if (path === "/dashboard") return "/";
+  return path.replace(/^\/dashboard/, "") || "/";
+};
+
+/**
+ * Converts a Toolpad segment path like "/orders"
+ * back into the full React Router path "/dashboard/orders".
+ */
+const toRouterPath = (segment) => {
+  if (!segment || segment === "/" || segment === "dashboard") return "/dashboard";
+  const clean = segment.startsWith("/") ? segment : `/${segment}`;
+  return `/dashboard${clean}`;
+};
+
 /* ================= MAIN ================= */
 
 export default function DashboardTabs({ window }) {
@@ -50,18 +72,11 @@ export default function DashboardTabs({ window }) {
     navigate("/");
   };
 
-  /* Convert URL → segment */
-  const getSegment = (path) => {
-    if (path === "/dashboard") return "dashboard";
-
-    const match = path.match(/^\/dashboard\/(.+)/);
-    return match ? match[1] : "dashboard";
-  };
-
   /* Toolpad Router */
   const router = React.useMemo(
     () => ({
-      pathname: getSegment(location.pathname),
+      // ✅ Pass the Toolpad-style pathname so active state is correctly highlighted
+      pathname: toToolpadPathname(location.pathname),
       searchParams: new URLSearchParams(),
 
       navigate: (segment) => {
@@ -70,10 +85,7 @@ export default function DashboardTabs({ window }) {
           return;
         }
 
-        const path =
-          segment === "dashboard"
-            ? "/dashboard"
-            : `/dashboard/${segment}`;
+        const path = toRouterPath(segment);
 
         if (location.pathname !== path) {
           navigate(path);
