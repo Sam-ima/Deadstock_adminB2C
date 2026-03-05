@@ -1,13 +1,24 @@
-// src/pages/Users.jsx
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { TableRow, TableCell, Avatar, Chip } from "@mui/material";
-import CommonTable from "../../components/Table/common_table";
-import { fetchUsers } from "../../store/slices/user_slice";
+import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { fetchUsers, deleteUser, updateUser } from "../../store/slices/user_slice";
+import UserTable from "./user_table";
 
 const Users = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+const [openEdit, setOpenEdit] = useState(false);
+const [selectedUser, setSelectedUser] = useState(null);
+const [editForm, setEditForm] = useState({
+  fullName: "",
+  phone: "",
+  shopName: "",
+  city: "",
+});
+
   const { users, loading } = useSelector((state) => state.users);
 
   const [page, setPage] = useState(0);
@@ -17,18 +28,50 @@ const Users = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  const columns = [
-    { id: "photo", label: "Photo", width: 80 },
-    { id: "fullName", label: "Full Name" },
-    { id: "email", label: "Email" },
-    { id: "phone", label: "Phone" },
-    { id: "buyerType", label: "Buyer Type" },
-    { id: "shopName", label: "Shop Name" },
-    { id: "panVat", label: "PAN/VAT" },
-    { id: "city", label: "City" },
-    { id: "address", label: "Address" },
-    { id: "role", label: "Role" },
-  ];
+ const handleDelete = async (user) => {
+  if (window.confirm("Are you sure you want to delete this user?")) {
+    try {
+      await dispatch(deleteUser(user.id)).unwrap();
+      toast.success("User deleted successfully 🗑️");
+    } catch (error) {
+      toast.error("Failed to delete user ❌");
+    }
+  }
+};
+
+const handleEdit = (user) => {
+  setSelectedUser(user);
+  setEditForm({
+    fullName: user.fullName || "",
+    phone: user.phone || "",
+    shopName: user.shopName || "",
+    city: user.city || "",
+  });
+  setOpenEdit(true);
+};
+
+
+  const handleViewDetails = (user) => {
+    console.log("View Details:", user);
+  };
+
+  const handleViewProducts = (user) => {
+    navigate(`/products?sellerId=${user.uid}`);
+  };
+const handleChange = (e) => {
+  setEditForm({
+    ...editForm,
+    [e.target.name]: e.target.value,
+  });
+};
+const handleUpdateUser = async (id, updatedData) => {
+  try {
+    await dispatch(updateUser({ id, updatedData })).unwrap();
+    toast.success("User updated successfully ✅");
+  } catch (error) {
+    toast.error("Failed to update user ❌");
+  }
+};
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -39,43 +82,25 @@ const Users = () => {
     setPage(0);
   };
 
-  const paginatedData = users.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
   return (
-    <CommonTable
-      columns={columns}
-      data={paginatedData}
-      page={page}
-      rowsPerPage={rowsPerPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      emptyMessage={loading ? "Loading..." : "No users found."}
-      renderRow={(row) => (
-        <TableRow key={row.id} hover>
-          <TableCell>
-            <Avatar src={row.photoURL} alt={row.fullName} />
-          </TableCell>
-          <TableCell>{row.fullName}</TableCell>
-          <TableCell>{row.email}</TableCell>
-          <TableCell>{row.phone}</TableCell>
-          <TableCell>{row.buyerType}</TableCell>
-          <TableCell>{row.shopName}</TableCell>
-          <TableCell>{row.panVat}</TableCell>
-          <TableCell>{row.city}</TableCell>
-          <TableCell>{row.address}</TableCell>
-          <TableCell>
-            <Chip
-              label={row.role}
-              color="primary"
-              size="small"
-            />
-          </TableCell>
-        </TableRow>
-      )}
-    />
+    <Box>
+      <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
+        Users Management
+      </Typography>
+
+      <UserTable
+  users={users}
+  page={page}
+  rowsPerPage={rowsPerPage}
+  onPageChange={handleChangePage}
+  onRowsPerPageChange={handleChangeRowsPerPage}
+  loading={loading}
+  onViewProducts={handleViewProducts}
+  onViewDetails={handleViewDetails}
+  onDelete={handleDelete}
+  onUpdateUser={handleUpdateUser}
+/>
+    </Box>
   );
 };
 
