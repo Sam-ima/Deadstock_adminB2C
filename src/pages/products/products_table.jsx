@@ -64,37 +64,48 @@ const paginatedProducts = safeProducts.slice(
       </TableCell>
    {/* Image */}
 <TableCell>
-  <Tooltip
-    title={
-      <Box
-        component="img"
-        src={
-          product.images?.find(img => img.isMain)?.url ||
-          product.images?.[0]?.url
+  <Box sx={{ display: "flex", gap: 1 }}>
+    {product.images?.slice(0, 3).map((img, i) => (
+      <Tooltip
+        key={i}
+        title={
+          <Box
+            component="img"
+            src={img.url}
+            sx={{
+              width: 250,
+              borderRadius: 1,
+            }}
+          />
         }
-        sx={{ width: 200 }}
+        arrow
+      >
+        <Box
+          component="img"
+          src={img.url}
+          alt={product.name}
+          sx={{
+            width: 50,
+            height: 50,
+            objectFit: "cover",
+            borderRadius: 1,
+            border: img.isMain
+              ? "2px solid #1976d2"
+              : "1px solid #ddd",
+            cursor: "pointer",
+          }}
+        />
+      </Tooltip>
+    ))}
+
+    {/* If more than 3 images */}
+    {product.images?.length > 3 && (
+      <Chip
+        label={`+${product.images.length - 3}`}
+        size="small"
       />
-    }
-    arrow
-  >
-    <Box
-      component="img"
-      src={
-        product.images?.find(img => img.isMain)?.url ||
-        product.images?.[0]?.url ||
-        "/no-image.png"
-      }
-      alt={product.name}
-      sx={{
-        width: 50,
-        height: 50,
-        objectFit: "cover",
-        borderRadius: 1,
-        border: "1px solid #ddd",
-        cursor: "pointer",
-      }}
-    />
-  </Tooltip>
+    )}
+  </Box>
 </TableCell>
 
   <TableCell>
