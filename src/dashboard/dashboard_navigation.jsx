@@ -6,6 +6,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LogoutIcon from "@mui/icons-material/Logout";
+import GroupIcon from "@mui/icons-material/Group"; 
 
 export const NAVIGATION = [
   {
@@ -13,6 +14,12 @@ export const NAVIGATION = [
     title: "Dashboard",
     icon: <DashboardIcon />,
     pattern: "dashboard",
+  },
+  {
+    segment: "users", 
+    title: "Users",
+    icon: <GroupIcon />,
+    pattern: "users",
   },
   {
     segment: "sellers",
@@ -32,12 +39,6 @@ export const NAVIGATION = [
     icon: <ProductionQuantityLimitsIcon />,
     pattern: "products",
   },
-  // {
-  //   segment: "low-stock",
-  //   title: "Low Stock",
-  //   icon: <ProductionQuantityLimitsIcon />,
-  //   pattern: "low-stock",
-  // },
   {
     segment: "orders",
     title: "Orders",
