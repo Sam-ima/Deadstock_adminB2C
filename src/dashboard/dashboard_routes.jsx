@@ -1,6 +1,7 @@
 import React from "react";
 
 import DashboardContent from "./dashboard_content";
+import UsersPage from "../pages/users/user_page";
 import SellersPage from "../pages/sellers/seller.page";
 import CustomersPage from "../pages/customers/customer.page";
 import ProductsPage from "../pages/products/products_page";
@@ -11,6 +12,7 @@ import SellerSettlementPage from "../pages/seller settlement/seller_settlement.p
 
 export const componentMap = {
   "/dashboard": <DashboardContent />,
+  "/dashboard/users": <UsersPage />,
   "/dashboard/sellers": <SellersPage />,
   "/dashboard/buyers": <CustomersPage />,
   "/dashboard/products": <ProductsPage />,
