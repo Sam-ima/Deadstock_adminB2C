@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   TableRow,
   TableCell,
@@ -21,10 +21,16 @@ import { fetchBuyers } from "../../store/slices/buyer_slice";
 import CommonTable from "../Table/common_table";
 import BuyerProductsDialog from "./buyer_dialog";
 
+/* 🔹 Import Search Context */
+import { useSearch } from "../searchbar/searchContext";
+
 const BuyerTable = () => {
 
   const dispatch = useDispatch();
   const { list: buyers, loading } = useSelector((state) => state.buyers);
+
+  /* 🔹 Search Query */
+  const { query } = useSearch();
 
   const [editId, setEditId] = useState(null);
   const [editData, setEditData] = useState({ fullName: "", email: "" });
@@ -39,6 +45,17 @@ const BuyerTable = () => {
   useEffect(() => {
     dispatch(fetchBuyers());
   }, [dispatch]);
+
+  /* 🔹 Filter Buyers using Search */
+  const filteredBuyers = useMemo(() => {
+    if (!query) return buyers;
+
+    return buyers.filter((buyer) =>
+      buyer.fullName?.toLowerCase().includes(query.toLowerCase()) ||
+      buyer.email?.toLowerCase().includes(query.toLowerCase()) ||
+      buyer.provider?.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [buyers, query]);
 
   /* 🔹 View Products */
   const handleViewProducts = (buyer) => {
@@ -82,7 +99,8 @@ const BuyerTable = () => {
     { id: "actions", label: "Actions", width: 180 },
   ];
 
-  const paginatedBuyers = buyers.slice(
+  /* 🔹 Pagination using FILTERED buyers */
+  const paginatedBuyers = filteredBuyers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -95,6 +113,7 @@ const BuyerTable = () => {
         page={page}
         rowsPerPage={rowsPerPage}
         loading={loading}
+        count={filteredBuyers.length}
         onPageChange={(_, newPage) => setPage(newPage)}
         onRowsPerPageChange={(e) => {
           setRowsPerPage(parseInt(e.target.value, 10));
@@ -148,10 +167,9 @@ const BuyerTable = () => {
               {buyer.createdAt?.toDate().toLocaleDateString()}
             </TableCell>
 
-            {/* 🔹 Actions */}
             <TableCell align="center">
 
-              {/* View Products */}
+              {/* View */}
               <IconButton
                 color="primary"
                 onClick={() => handleViewProducts(buyer)}
@@ -188,7 +206,6 @@ const BuyerTable = () => {
         )}
       />
 
-      {/* 🔹 Buyer Products Dialog */}
       <BuyerProductsDialog
         open={openProducts}
         handleClose={() => setOpenProducts(false)}
