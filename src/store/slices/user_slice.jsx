@@ -30,7 +30,7 @@ export const fetchUsers = createAsyncThunk(
         id: doc.id,
         ...doc.data(),
       }));
-
+         console.log("Fetched Users:", users);
       return users;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
@@ -99,6 +99,7 @@ const userSlice = createSlice({
       .addCase(fetchUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        console.log("Redux Users State:", action.payload);
       })
 
       /* ✏ UPDATE */

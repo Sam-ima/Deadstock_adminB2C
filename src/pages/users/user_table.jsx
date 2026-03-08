@@ -10,8 +10,6 @@ import {
   TextField,
 } from "@mui/material";
 
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import StorefrontIcon from "@mui/icons-material/Storefront";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CheckIcon from "@mui/icons-material/Check";
@@ -26,8 +24,6 @@ const UserTable = ({
   onPageChange,
   onRowsPerPageChange,
   loading,
-  onViewProducts,
-  onViewDetails,
   onDelete,
   onUpdateUser,
 }) => {
@@ -42,6 +38,7 @@ const UserTable = ({
     { id: "phone", label: "Phone" },
     { id: "shopName", label: "Shop Name" },
     { id: "city", label: "City" },
+    { id: "panVat", label: "PAN / VAT" },
     { id: "role", label: "Role" },
     { id: "action", label: "Action", width: 250 },
   ];
@@ -53,11 +50,13 @@ const UserTable = ({
 
   const handleEditClick = (row) => {
     setEditRowId(row.id);
+
     setEditData({
       fullName: row.fullName || "",
-      phone: row.phone || "",
-      shopName: row.shopName || "",
-      city: row.city || "",
+      phone: row.business?.phone || row.phone || "",
+      shopName: row.business?.shopName || row.shopName || "",
+      city: row.business?.city || row.city || "",
+      panVat: row.business?.panVat || row.panVat || "",
     });
   };
 
@@ -69,7 +68,15 @@ const UserTable = ({
   };
 
   const handleSave = (rowId) => {
-    onUpdateUser(rowId, editData);
+    const updatedData = {
+      fullName: editData.fullName,
+      phone: editData.phone,
+      shopName: editData.shopName,
+      city: editData.city,
+      panVat: editData.panVat,
+    };
+
+    onUpdateUser(rowId, updatedData);
     setEditRowId(null);
   };
 
@@ -89,6 +96,11 @@ const UserTable = ({
       renderRow={(row, index) => {
         const isEditing = editRowId === row.id;
 
+        const phone = row.business?.phone || row.phone || "-";
+        const shopName = row.business?.shopName || row.shopName || "-";
+        const city = row.business?.city || row.city || "-";
+        const panVat = row.business?.panVat || row.panVat || "-";
+
         return (
           <TableRow key={row.id} hover>
             <TableCell>{page * rowsPerPage + index + 1}</TableCell>
@@ -101,24 +113,18 @@ const UserTable = ({
             <TableCell>
               {isEditing ? (
                 <TextField
-                name="fullName"
-                value={editData.fullName}
-                onChange={handleChange}
-                variant="outlined"
-                size="medium"
-                fullWidth
-                sx={{
-                    minWidth: 150,
-                    "& .MuiInputBase-input": {
-                    padding: "8px 10px",
-                    },
-                }}
+                  name="fullName"
+                  value={editData.fullName}
+                  onChange={handleChange}
+                  size="small"
+                  fullWidth
                 />
               ) : (
                 row.fullName
               )}
             </TableCell>
 
+            {/* EMAIL */}
             <TableCell>{row.email}</TableCell>
 
             {/* PHONE */}
@@ -128,17 +134,11 @@ const UserTable = ({
                   name="phone"
                   value={editData.phone}
                   onChange={handleChange}
-                  size="medium"
-                fullWidth
-                sx={{
-                    minWidth: 150,
-                    "& .MuiInputBase-input": {
-                    padding: "8px 10px",
-                    },
-                }}
+                  size="small"
+                  fullWidth
                 />
               ) : (
-                row.phone
+                phone
               )}
             </TableCell>
 
@@ -149,18 +149,11 @@ const UserTable = ({
                   name="shopName"
                   value={editData.shopName}
                   onChange={handleChange}
-                  variant="outlined"
-                  size="medium"
+                  size="small"
                   fullWidth
-                  sx={{
-                    minWidth: 150,
-                    "& .MuiInputBase-input": {
-                      padding: "8px 10px",
-                    },
-                  }}
                 />
               ) : (
-                row.shopName
+                shopName
               )}
             </TableCell>
 
@@ -171,24 +164,32 @@ const UserTable = ({
                   name="city"
                   value={editData.city}
                   onChange={handleChange}
-                  variant="outlined"
-                  size="medium"
+                  size="small"
                   fullWidth
-                  sx={{
-                    minWidth: 150,
-                    "& .MuiInputBase-input": {
-                      padding: "8px 10px",
-                    },
-                  }}
                 />
               ) : (
-                row.city
+                city
               )}
             </TableCell>
 
+            {/* PAN VAT */}
             <TableCell>
-              <Chip label={row.role} color="primary"
-               size="small" />
+              {isEditing ? (
+                <TextField
+                  name="panVat"
+                  value={editData.panVat}
+                  onChange={handleChange}
+                  size="small"
+                  fullWidth
+                />
+              ) : (
+                panVat
+              )}
+            </TableCell>
+
+            {/* ROLE */}
+            <TableCell>
+              <Chip label={row.role} color="primary" size="small" />
             </TableCell>
 
             {/* ACTIONS */}
@@ -209,24 +210,6 @@ const UserTable = ({
                   </>
                 ) : (
                   <>
-                    {/* <Tooltip title="View Products">
-                      <IconButton
-                        color="primary"
-                        onClick={() => onViewProducts(row)}
-                      >
-                        <StorefrontIcon />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="View Details">
-                      <IconButton
-                        color="secondary"
-                        onClick={() => onViewDetails(row)}
-                      >
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip> */}
-
                     <Tooltip title="Edit">
                       <IconButton
                         color="info"
