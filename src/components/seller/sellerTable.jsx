@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { useSearch } from "../searchbar/searchContext";
+
 import {
   Box,
   Avatar,
@@ -43,11 +45,43 @@ const SellerTable = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  const { query } = useSearch();
+
   /* Fetch Sellers from Redux */
   useEffect(() => {
     dispatch(fetchSellers());
   }, [dispatch]);
 
+  useEffect(() => {
+  setPage(0);
+}, [query]);
+
+/* 🔹 Filter Sellers using Search */
+const filteredSellers = useMemo(() => {
+  if (!query) return sellers;
+
+  return sellers.filter((seller) => {
+    const address = seller.business?.address || seller.address || "";
+    const city = seller.business?.city || seller.city || "";
+    const country = seller.business?.country || seller.country || "";
+    const phone = seller.business?.phone || seller.phone || "";
+    const shopName = seller.business?.shopName || seller.shopName || "";
+    const panVat = seller.business?.panVat || seller.panVat || "";
+
+    const q = query.toLowerCase();
+
+    return (
+      seller.fullName?.toLowerCase().includes(q) ||
+      seller.email?.toLowerCase().includes(q) ||
+      address.toLowerCase().includes(q) ||
+      city.toLowerCase().includes(q) ||
+      country.toLowerCase().includes(q) ||
+      phone.toLowerCase().includes(q) ||
+      shopName.toLowerCase().includes(q) ||
+      panVat.toLowerCase().includes(q)
+    );
+  });
+}, [sellers, query]);
   /* Delete Seller */
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this seller?")) {
@@ -88,7 +122,7 @@ const handleViewProducts = (seller) => {
   ];
 
   /* Pagination */
-  const paginatedData = sellers.slice(
+  const paginatedData = filteredSellers.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -187,6 +221,7 @@ const handleViewProducts = (seller) => {
         page={page}
         rowsPerPage={rowsPerPage}
         loading={loading}
+        count={filteredSellers.length}
         onPageChange={(e, newPage) => setPage(newPage)}
         onRowsPerPageChange={(e) => {
           setRowsPerPage(parseInt(e.target.value, 10));
