@@ -5,14 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { fetchUsers, deleteUser, updateUser } from "../../store/slices/user_slice";
 import UserTable from "./user_table";
-import { useSearch } from "../../components/searchbar/searchContext"; // ✅ import search context
+import { useSearch } from "../../components/searchbar/searchContext"; // ✅ import the hook
 
 const Users = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Search context
-  const { query } = useSearch(); // ✅ get search query
+  // Get the global search query
+  const { query } = useSearch();
 
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -32,18 +32,20 @@ const Users = () => {
     dispatch(fetchUsers());
   }, [dispatch]);
 
-  // ✅ Filter users based on search query
+  // Filter users based on search query (case‑insensitive)
   const filteredUsers = useMemo(() => {
     if (!query.trim()) return users;
     const lowerQuery = query.toLowerCase();
-    return users.filter(
-      (user) =>
+    return users.filter((user) => {
+      return (
         (user.fullName && user.fullName.toLowerCase().includes(lowerQuery)) ||
         (user.email && user.email.toLowerCase().includes(lowerQuery)) ||
         (user.phone && user.phone.toLowerCase().includes(lowerQuery)) ||
         (user.shopName && user.shopName.toLowerCase().includes(lowerQuery)) ||
-        (user.city && user.city.toLowerCase().includes(lowerQuery))
-    );
+        (user.city && user.city.toLowerCase().includes(lowerQuery)) ||
+        (user.panVat && user.panVat.toLowerCase().includes(lowerQuery))
+      );
+    });
   }, [users, query]);
 
   // Reset to first page when search changes
@@ -113,7 +115,7 @@ const Users = () => {
       </Typography>
 
       <UserTable
-        users={filteredUsers} // ✅ pass filtered users
+        users={filteredUsers}          // ✅ pass filtered users
         page={page}
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
