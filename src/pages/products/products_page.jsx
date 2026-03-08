@@ -20,17 +20,16 @@ export default function ProductsPage() {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const { products, categories, subcategories, loading } = useSelector(
-    (state) => state.product
-  );
+  const { products = [], categories = [], subcategories = [], loading } =
+    useSelector((state) => state.product || {});
 
-  // Filter states
+  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [tabValue, setTabValue] = useState(location.state?.tabValue ?? 0);
 
-  // Pagination states
+  // Pagination
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -43,31 +42,49 @@ export default function ProductsPage() {
     dispatch(fetchAllData());
   }, [dispatch]);
 
-  // Filtered products (memoized)
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(0);
+  }, [searchQuery, selectedCategory, selectedSubcategory, tabValue]);
+
+  // Filter products safely
   const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+
     return products.filter((product) => {
+      const name = product?.name?.toLowerCase?.() || "";
+      const slug = product?.slug?.toLowerCase?.() || "";
+      const search = searchQuery.toLowerCase();
+
       const matchesSearch =
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.slug?.toLowerCase().includes(searchQuery.toLowerCase());
+        name.includes(search) || slug.includes(search);
 
       const matchesCategory =
-        selectedCategory === "all" || product.categoryId === selectedCategory;
+        selectedCategory === "all" ||
+        product?.categoryId === selectedCategory;
 
       const matchesSubcategory =
         selectedSubcategory === "all" ||
-        product.subcategoryId === selectedSubcategory;
+        product?.subcategoryId === selectedSubcategory;
+
+      const status = product?.status || "active";
 
       const matchesTab =
         tabValue === 0 ||
-        (tabValue === 1 && product.status === "active") ||
-        (tabValue === 2 && product.status === "draft") ||
-        (tabValue === 3 && product.status === "inactive");
+        (tabValue === 1 && status === "active") ||
+        (tabValue === 2 && status === "draft") ||
+        (tabValue === 3 && status === "inactive");
 
-      return matchesSearch && matchesCategory && matchesSubcategory && matchesTab;
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesSubcategory &&
+        matchesTab
+      );
     });
   }, [products, searchQuery, selectedCategory, selectedSubcategory, tabValue]);
 
-  // Handlers
+  // Pagination handlers
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -77,24 +94,36 @@ export default function ProductsPage() {
     setPage(0);
   };
 
+  // Add / Update product
   const handleAddOrUpdate = async (product) => {
     try {
-      if (product.id) {
-        await dispatch(updateProduct({ id: product.id, data: product }));
+      if (product?.id) {
+        await dispatch(
+          updateProduct({ id: product.id, data: product })
+        ).unwrap();
         toast.success("✅ Product updated");
       } else {
-        await dispatch(addProduct(product));
+        await dispatch(addProduct(product)).unwrap();
         toast.success("🎉 Product added");
       }
+
       setOpen(false);
-    } catch {
+      setSelectedProduct(null);
+    } catch (error) {
+      console.error(error);
       toast.error("❌ Something went wrong");
     }
   };
 
-  const handleDelete = (id) => {
-    dispatch(deleteProduct(id));
-    toast.success("🗑️ Product deleted");
+  // Delete product
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteProduct(id)).unwrap();
+      toast.success("🗑️ Product deleted");
+    } catch (error) {
+      console.error(error);
+      toast.error("❌ Failed to delete product");
+    }
   };
 
   if (loading) {
@@ -124,7 +153,9 @@ export default function ProductsPage() {
           setSelectedCategory(e.target.value);
           setSelectedSubcategory("all");
         }}
-        handleSubcategoryChange={(e) => setSelectedSubcategory(e.target.value)}
+        handleSubcategoryChange={(e) =>
+          setSelectedSubcategory(e.target.value)
+        }
         handleClearFilters={() => {
           setSearchQuery("");
           setSelectedCategory("all");
@@ -133,7 +164,6 @@ export default function ProductsPage() {
         }}
       />
 
-      {/* Product Table with pagination props */}
       <ProductTable
         products={filteredProducts}
         categories={categories}
@@ -160,7 +190,9 @@ export default function ProductsPage() {
         setProduct={setSelectedProduct}
         categories={categories}
         subcategories={subcategories}
-        handleUpdateProduct={() => handleAddOrUpdate(selectedProduct)}
+        handleUpdateProduct={() =>
+          handleAddOrUpdate(selectedProduct)
+        }
       />
 
       <ViewProductDialog
