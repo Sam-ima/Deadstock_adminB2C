@@ -26,9 +26,9 @@ const SellerSettlementTable = ({
     page * rowsPerPage + rowsPerPage
   );
 
-  // 🔥 Open eSewa payment
+  // Open eSewa only if payment method is ESEWA and not settled
   const handleEsewaPay = (row) => {
-    if (row.paymentMethod !== "ESEWA") return;
+    if (row.paymentMethod !== "ESEWA" || row.status === "settled") return;
 
     const esewaUrl = "https://uat.esewa.com.np/epay/main";
 
@@ -38,8 +38,8 @@ const SellerSettlementTable = ({
       pdc: 0,
       txAmt: 0,
       tAmt: row.amountToSeller,
-      pid: row.id, // unique transaction id
-      scd: "EPAYTEST", // merchant code (use real one in prod)
+      pid: row.id,
+      scd: "EPAYTEST",
       su: window.location.origin + "/payment-success",
       fu: window.location.origin + "/payment-failure",
     });
@@ -92,13 +92,11 @@ const SellerSettlementTable = ({
       </TableCell>
 
       <TableCell>
-        {row.createdAt
-          ? new Date(row.createdAt).toLocaleDateString()
-          : "-"}
+        {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "-"}
       </TableCell>
 
       <TableCell>
-        {/* 💰 Pay with eSewa */}
+        {/* Pay with eSewa */}
         <Tooltip title="Pay via eSewa">
           <span>
             <IconButton
@@ -112,21 +110,28 @@ const SellerSettlementTable = ({
           </span>
         </Tooltip>
 
-        {/* ✅ Mark as Settled */}
+        {/* Mark as Settled with confirmation */}
         <Tooltip title="Mark as Settled">
           <span>
             <IconButton
               size="small"
               color="primary"
               disabled={row.status === "settled"}
-              onClick={() => onSettle(row.id)}
+              onClick={() => {
+                const confirmSettle = window.confirm(
+                  `Are you sure you want to settle payment for ${row.sellerName}?`
+                );
+                if (confirmSettle) {
+                  onSettle(row.id, row.status);
+                }
+              }}
             >
               ✔
             </IconButton>
           </span>
         </Tooltip>
 
-        {/* ❌ Delete */}
+        {/* Delete */}
         <Tooltip title="Delete Settlement">
           <IconButton
             size="small"
@@ -146,6 +151,7 @@ const SellerSettlementTable = ({
       data={paginatedData}
       page={page}
       rowsPerPage={rowsPerPage}
+      count={settlements.length}
       onPageChange={handleChangePage}
       onRowsPerPageChange={handleChangeRowsPerPage}
       emptyMessage="No settlements found."

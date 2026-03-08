@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { useSearch } from "../../components/searchbar/searchContext";
 
 import SellerSettlementTable from "./seller_settlement_table";
 import {
@@ -16,20 +17,48 @@ const SellerSettlementPage = () => {
     (state) => state.sellerSettlement
   );
 
+  const { query } = useSearch();
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  // Fetch settlements
   useEffect(() => {
     dispatch(fetchSellerSettlements());
   }, [dispatch]);
 
+  // Filter settlements based on search query
+  const filteredSettlements = useMemo(() => {
+    if (!query) return settlements;
+
+    const q = query.toLowerCase();
+
+    return settlements.filter((s) => {
+      return (
+        (s.productName?.toLowerCase().includes(q) || false) ||
+        (s.sellerName?.toLowerCase().includes(q) || false) ||
+        (s.sellerPhone?.toLowerCase().includes(q) || false) ||
+        (s.paymentMethod?.toLowerCase().includes(q) || false) ||
+        (s.status?.toLowerCase().includes(q) || false)
+      );
+    });
+  }, [settlements, query]);
+
+  // Ensure current page is valid
+  useEffect(() => {
+    const maxPage = Math.floor((filteredSettlements.length - 1) / rowsPerPage);
+    if (page > maxPage) setPage(maxPage >= 0 ? maxPage : 0);
+  }, [filteredSettlements, page, rowsPerPage]);
+
   const handleChangePage = (_, newPage) => setPage(newPage);
+
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
-  const handleSettle = async (id) => {
+  const handleSettle = async (id, status) => {
+    if (status === "settled") return; // Prevent action if already settled
     try {
       await dispatch(settleSellerPayment(id)).unwrap();
       toast.success("Payment settled successfully!");
@@ -64,7 +93,7 @@ const SellerSettlementPage = () => {
 
       {!loading && !error && (
         <SellerSettlementTable
-          settlements={settlements}
+          settlements={filteredSettlements}
           page={page}
           rowsPerPage={rowsPerPage}
           handleChangePage={handleChangePage}
