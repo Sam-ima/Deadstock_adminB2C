@@ -13,7 +13,6 @@ import {
   Typography,
 } from "@mui/material";
 
-
 import InventoryIcon from "@mui/icons-material/Inventory";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -210,109 +209,92 @@ const DashboardContent = ({ navigate }) => {
   };
 
   /* =======================
-      Dashboard Cards
+      Dashboard Cards (trend removed)
   ======================== */
 
   const cardData = [
-  // 1️⃣ Total Products
-  {
-    title: "Total Products",
-    value: products.length,
-    icon: <InventoryIcon />,
-    onClick: () => navigate("/products"),
-    color: theme.palette.primary.main,
-    trend: "+12%",
-    trendUp: true,
-  },
+    // 1️⃣ Total Products
+    {
+      title: "Total Products",
+      value: products.length,
+      icon: <InventoryIcon />,
+      onClick: () => navigate("/products"),
+      color: theme.palette.primary.main,
+    },
 
-  // 2️⃣ Active Products
-  {
-    title: "Active Products",
-    value: activeProducts,
-    icon: <CheckCircleIcon />,
-     onClick: () => navigate("/products"),
-    color: theme.palette.success.main,
-    trend: "+8%",
-    trendUp: true,
-  },
+    // 2️⃣ Active Products
+    {
+      title: "Active Products",
+      value: activeProducts,
+      icon: <CheckCircleIcon />,
+      onClick: () => navigate("/products"),
+      color: theme.palette.success.main,
+    },
 
-  // 3️⃣ Inactive Products
-  {
-    title: "Inactive Products",
-    value: inactiveProducts,
-    icon: <CancelIcon />,
-    onClick: () => navigate("/products"),
-     color: theme.palette.error.main,
-    trend: "-3%",
-    trendUp: false,
-  },
+    // 3️⃣ Inactive Products
+    {
+      title: "Inactive Products",
+      value: inactiveProducts,
+      icon: <CancelIcon />,
+      onClick: () => navigate("/products"),
+      color: theme.palette.error.main,
+    },
 
-  // 4️⃣ Total Orders
-  {
-    title: "Total Orders",
-    value: orders.length,
-    icon: <ShoppingCartIcon />,
-    onClick: () => navigate("/orders"),
-    color: theme.palette.warning.main,
-    trend: "+15%",
-    trendUp: true,
-  },
+    // 4️⃣ Total Orders
+    {
+      title: "Total Orders",
+      value: orders.length,
+      icon: <ShoppingCartIcon />,
+      onClick: () => navigate("/orders"),
+      color: theme.palette.warning.main,
+    },
 
-  // 5️⃣ Total Buyers
-  {
-    title: "Total Buyers",
-    value: buyers.length,
-    icon: <PeopleIcon />,
-    onClick: () => navigate("/buyers"),
-    color: theme.palette.info.main,
-    trend: "+6%",
-    trendUp: true,
-  },
+    // 5️⃣ Total Buyers
+    {
+      title: "Total Buyers",
+      value: buyers.length,
+      icon: <PeopleIcon />,
+      onClick: () => navigate("/buyers"),
+      color: theme.palette.info.main,
+    },
 
-  // 6️⃣ Total Sellers
-  {
-    title: "Total Sellers",
-    value: sellers.length,
-    icon: <StoreIcon />,
-    onClick: () => navigate("/sellers"),
-    color: theme.palette.secondary.main,
-    trend: "+4%",
-    trendUp: true,
-  },
+    // 6️⃣ Total Sellers
+    {
+      title: "Total Sellers",
+      value: sellers.length,
+      icon: <StoreIcon />,
+      onClick: () => navigate("/sellers"),
+      color: theme.palette.secondary.main,
+    },
 
-  // 7️⃣ Amount to Seller
-  {
-    title: "Amount to Seller",
-    value: `₹${totalAmountToSeller.toLocaleString()}`,
-    icon: <AccountBalanceIcon />,
-    onClick: () => navigate("/seller-settlement"),
-    color: theme.palette.success.dark,
-    trend: "+10%",
-    trendUp: true,
-  },
+    // 7️⃣ Amount to Seller
+    {
+      title: "Amount to Seller",
+      value: `Rs${totalAmountToSeller.toLocaleString()}`,
+      icon: <AccountBalanceIcon />,
+      onClick: () => navigate("/seller-settlement"),
+      color: theme.palette.success.dark,
+    },
 
-  // 8️⃣ Commission Amount
-  {
-    title: "Commission",
-    value: `₹${totalCommissionAmount.toLocaleString()}`,
-    icon: <PaymentsIcon />,
-    onClick: () => navigate("/seller-settlement"),
-    color: theme.palette.warning.dark,
-    trend: "+5%",
-    trendUp: true,
-  },
+    // 8️⃣ Commission Amount
+    {
+      title: "Commission",
+      value: `Rs${totalCommissionAmount.toLocaleString()}`,
+      icon: <PaymentsIcon />,
+      onClick: () => navigate("/seller-settlement"),
+      color: theme.palette.warning.dark,
+    },
 
-  // 9️⃣ Total Sales
-  {
-    title: "Total Sales",
-    value: `₹${totalSalesAmount.toLocaleString()}`,
-    icon: <MonetizationOnIcon />,
-   onClick: () => navigate("/seller-settlement"),
-    color: theme.palette.primary.dark,
-    trend: revenueGrowth,
-    trendUp: revenueGrowth.startsWith("+"),
-  },
-];
+    // 9️⃣ Total Sales
+    {
+      title: "Total Sales",
+      value: `Rs${totalSalesAmount.toLocaleString()}`,
+      icon: <MonetizationOnIcon />,
+      onClick: () => navigate("/seller-settlement"),
+      color: theme.palette.primary.dark,
+      // Revenue growth is still used elsewhere (area chart), but not on the card
+    },
+  ];
 
   /* =======================
       Animations

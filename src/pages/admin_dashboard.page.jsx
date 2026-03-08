@@ -31,6 +31,7 @@ const AdminDashboardPage = () => {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
+          backgroundColor:'red'
         }}
       >
         <CircularProgress />
